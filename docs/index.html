@@ -161,10 +161,14 @@ p { margin: 0 0 10px 0; }
     }
       
       function reset () {
-        //svg.attr("transform", "translate(0,0)scale(1)");
-        svg.transition()
-           .duration(750)
-           .call(d3.zoom().transform, d3.zoomIdentity);
+        svg.attr("transform", "translate(0,0)scale(1)");
+        svg.on("mousedown.zoom", null);
+svg.on("mousemove.zoom", null);
+svg.on("dblclick.zoom", null);
+svg.on("touchstart.zoom", null);
+svg.on("wheel.zoom", null);
+svg.on("mousewheel.zoom", null);
+svg.on("MozMousePixelScroll.zoom", null);
     }
   </script>
   
