@@ -164,13 +164,13 @@ p { margin: 0 0 10px 0; }
     }
       
       function reset () {
-        svg.call(zoom.transform, d3.zoomIdentity.scale(1));
+        zoom.transform(svg, d3.zoomIdentity.scale(1));
         //svg.call(zoom.transform, d3.zoomIdentity);
         
     }
       
       function zoomed () {
-        svg.call(zoom.transform, d3.event.transform);
+        zoom.transform(svg, d3.event.transform);
       }
   </script>
   
