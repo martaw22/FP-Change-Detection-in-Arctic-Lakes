@@ -161,7 +161,10 @@ p { margin: 0 0 10px 0; }
     }
       
       function reset () {
-        svg.attr("transform", "translate(0,0)scale(1)");
+        //svg.attr("transform", "translate(0,0)scale(1)");
+        svg.transition()
+           .duration(750)
+           .call(d3.zoom().transform, d3.zoomIdentity);
     }
   </script>
   
