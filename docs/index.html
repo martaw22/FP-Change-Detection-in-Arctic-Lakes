@@ -3,7 +3,6 @@
 <head>
   <title>CSE512 | FP Change Detection in Arctic Lakes</title>
   <script src="https://d3js.org/d3.v5.min.js"></script>
-  <link rel="stylesheet" href="./styles.css">
   <style media="all">
 * { padding: 0; margin: 0; }
  body {
@@ -75,7 +74,7 @@ p { margin: 0 0 10px 0; }
 
   <section>
     <h2>Abstract</h2>
-    <em>[Add: a short description of your project, ideally within 150 words.]</em>
+    <em>We will be working with Catherine Kuhn who studies changes in Alaskan lakes from a rapidly changing climate as part of the NASA ABoVE project. We will be using data collected for several Alaskan lakes via both field campaigns monitoring lake chemistry and satellite imagery of lake color from Landsat. In Alaska alone, there are over 24,000 lakes so the big issue Catherine would like us to resolve is showing the large-scale structure of this dataset while also allowing a user to drill-down to a specific lake of interest. We aim to do this by building an interactive map of Alaska showing the lake locations, from which a user can then select a specific lake. Once a lake is selected, a pop-out will appear containing a gif of Landsat imagery showing the evolution of the lake’s color over time, time series plots of the satellite’s color channels, and other chemical data for the lakes if available. Given the large size of the Landsat images, we will create these gifs and time-series plots in Google Earth Engine, export them, and then build our interactive map dashboard using D3. Our visualization will be for a technical audience from this field.</em>
   </section>
 
   <section>
@@ -140,14 +139,14 @@ p { margin: 0 0 10px 0; }
       
       svg2.append("image")
       .attr('id','GIF')
-      .attr('xlink:href', 'gifs/Lunar_libration_with_phase2.gif')
+      .attr('xlink:href', '../gifs/river.gif')
       .attr("x", 0)
       .attr("y", 0)
       .attr("width", 300)
       
       svg2.append("image")
       .attr('id','TS')
-      .attr('xlink:href', 'timeseries/ee-chart_boot_blue.png')
+      .attr('xlink:href', '../timeseries/ee-chart_boot_blue.png')
       .attr("x", 305)
       .attr("y", 0)
       .attr("width", 150)
