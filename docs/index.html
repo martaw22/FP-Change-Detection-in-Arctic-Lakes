@@ -101,6 +101,7 @@ p { margin: 0 0 10px 0; }
    
     var svg = d3.select("body")
       .append("svg")
+      .attr('id','CON')
       .attr("width", 600)
       .attr("height", 600)
       .call(d3.zoom()
@@ -163,25 +164,7 @@ p { margin: 0 0 10px 0; }
     }
       
       function reset () {
-        d3.select('#MAP').remove()
-        d3.select('#LOC').remove()
-        svg.append("image")
-      .attr('xlink:href', 'lake_area.png')
-      .attr('id','MAP')
-      //.attr('xlink:href', '/lake_area.png')
-      .attr("x", 0)
-      .attr("y", 0)
-      .attr('width',1000)
-     // .attr("x", document.body.clientWidth / 2)
-     // .attr("y", document.body.clientHeight / 2)
-    
-    svg.append("rect")
-    .attr("width", 5)
-    .attr("height", 5)
-    .style("fill", "#f45342")
-    .attr("x", 10)
-    .attr("y", 30)
-    .on('click', addGIFandChart)
+        d3.select('#CON').call(zoom.transform, d3.zoomIdentity);
         
     }
   </script>
