@@ -164,7 +164,7 @@ p { margin: 0 0 10px 0; }
     }
       
       function reset () {
-        d3.select('#CON').call(zoom.transform, d3.zoomIdentity);
+        d3.select('#CON').call(d3.zoom().transform, d3.zoomIdentity);
         
     }
   </script>
