@@ -94,6 +94,8 @@ p { margin: 0 0 10px 0; }
   
     <script>
     // Feel free to change or delete any of the code you see in this editor!
+      
+    d3.select('button').on("click", reset);
     
     var widthMap = 600, heightMap = 600;
    
@@ -155,6 +157,13 @@ p { margin: 0 0 10px 0; }
       .attr("x", 305)
       .attr("y", 0)
       .attr("width", 150)
+    }
+      
+      function reset () {
+        scale = 1.0;
+        svg.attr("transform", "translate(0,0)scale(1,1)");
+        zoom.scale(scale)
+            .translate([0,0]);
     }
   </script>
   
