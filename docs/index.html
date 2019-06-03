@@ -162,7 +162,7 @@ p { margin: 0 0 10px 0; }
       function reset () {
         scale = 1.0;
         svg.attr("transform", "translate(0,0)scale(1,1)");
-        zoom.scale(scale)
+        d3.zoom().scale(scale)
             .translate([0,0]);
     }
   </script>
