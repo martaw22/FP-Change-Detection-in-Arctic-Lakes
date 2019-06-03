@@ -112,13 +112,6 @@ p { margin: 0 0 10px 0; }
       .append("g")
       .attr('id','CON')
     
-    var view = svg.append("rect")
-                  .attr("class", "view")
-                  .attr("x", 0.5)
-                  .attr("y", 0.5)
-                  .attr("width", widthMap - 1)
-                  .attr("height", heightMap - 1);
-    
     svg.append("image")
       .attr('xlink:href', 'lake_area.png')
       .attr('id','MAP')
@@ -176,7 +169,7 @@ p { margin: 0 0 10px 0; }
     }
       
       function zoomed () {
-              view.attr("transform", d3.event.transform);
+              svg.attr("transform", d3.event.transform);
       }
   </script>
   
