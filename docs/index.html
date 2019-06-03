@@ -164,8 +164,8 @@ p { margin: 0 0 10px 0; }
     }
       
       function reset () {
-        d3.event.transform = undefined;
-        svg.call(zoom.transform, d3.zoomIdentity);
+        svg.call(this.zoom.transform, d3.zoomIdentity.scale(1));
+        //svg.call(zoom.transform, d3.zoomIdentity);
         
     }
       
