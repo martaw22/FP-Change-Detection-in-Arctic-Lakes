@@ -1,7 +1,9 @@
 <!DOCTYPE HTML>
 <html xml:lang="en" lang="en">
 <head>
-  <title>CSE512 | FP [Add: title]</title>
+  <title>CSE512 | FP Change Detection in Arctic Lakes</title>
+  <script src="https://d3js.org/d3.v5.min.js"></script>
+  <link rel="stylesheet" href="./styles.css">
   <style media="all">
 * { padding: 0; margin: 0; }
  body {
@@ -86,6 +88,71 @@ p { margin: 0 0 10px 0; }
     <a href="http://www.washington.edu">University of Washington</a>
   </div>
  </div>
+  
+  <script>
+    // Feel free to change or delete any of the code you see in this editor!
+    
+    var widthMap = 600, heightMap = 600;
+   
+    var svg = d3.select("body")
+      .append("svg")
+      .attr("width", 600)
+      .attr("height", 600)
+      .call(d3.zoom()
+              .scaleExtent([1,25])
+              .translateExtent([[0, 0], [widthMap + 90, heightMap + 100]])
+              .on("zoom", function () {
+              svg.attr("transform", d3.event.transform)
+      }))
+      .append("g")
+    svg.append("image")
+      .attr('xlink:href', 'https://www.nasa.gov/sites/default/files/bit_depth_example_pics.png')
+      .attr("x", 0)
+      .attr("y", 0)
+      .attr('width',1000)
+     // .attr("x", document.body.clientWidth / 2)
+     // .attr("y", document.body.clientHeight / 2)
+    
+    svg.append("rect")
+    .attr("width", 5)
+    .attr("height", 5)
+    .style("fill", "#f45342")
+    .attr("x", 10)
+    .attr("y", 30)
+    .on('click', addGIFandChart)
+    
+    var svg2 = d3.select("body")
+      .append("svg")
+      .attr("width", 600)
+      .attr("height", 600)
+      .append("g")
+    
+    svg2.append("rect")
+    .attr("width",600)
+    .attr("height",600)
+    .style("fill", "#f45342")
+    .attr("x", 0)
+    .attr("y", 0)
+ 
+    function addGIFandChart() {
+      d3.select('#GIF').remove()
+      d3.select('#TS').remove()
+      
+      svg2.append("image")
+      .attr('id','GIF')
+      .attr('xlink:href', 'gifs/Lunar_libration_with_phase2.gif')
+      .attr("x", 0)
+      .attr("y", 0)
+      .attr("width", 300)
+      
+      svg2.append("image")
+      .attr('id','TS')
+      .attr('xlink:href', 'timeseries/ee-chart_boot_blue.png')
+      .attr("x", 305)
+      .attr("y", 0)
+      .attr("width", 150)
+    }
+  </script>
+  
 </body>
 </html> 
-
