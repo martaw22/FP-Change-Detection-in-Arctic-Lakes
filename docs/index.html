@@ -98,17 +98,19 @@ p { margin: 0 0 10px 0; }
     d3.select('button').on("click", reset);
     
     var widthMap = 600, heightMap = 600;
+      
+    var zoom =   d3.zoom()
+              .scaleExtent([1,10])
+              .translateExtent([[0, 0], [widthMap + 90, heightMap + 100]])
+              .on("zoom", function () {
+              svg.attr("transform", d3.event.transform)
+      })
    
     var svg = d3.select("body")
       .append("svg")
       .attr("width", 600)
       .attr("height", 600)
-      .call(d3.zoom()
-              .scaleExtent([1,10])
-              .translateExtent([[0, 0], [widthMap + 90, heightMap + 100]])
-              .on("zoom", function () {
-              svg.attr("transform", d3.event.transform)
-      }))
+      .call(zoom)
       .append("g")
       .attr('id','CON')
     
@@ -164,7 +166,7 @@ p { margin: 0 0 10px 0; }
     }
       
       function reset () {
-        svg.attr("transform", "translate(0,0)scale(1)");
+        svg.call(zoom.transform, d3.zoomIdentity);
         
     }
   </script>
