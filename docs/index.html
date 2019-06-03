@@ -104,12 +104,13 @@ p { margin: 0 0 10px 0; }
       .attr("width", 600)
       .attr("height", 600)
       .call(d3.zoom()
-              .scaleExtent([1,25])
+              .scaleExtent([1,10])
               .translateExtent([[0, 0], [widthMap + 90, heightMap + 100]])
               .on("zoom", function () {
               svg.attr("transform", d3.event.transform)
       }))
       .append("g")
+    
     svg.append("image")
       .attr('xlink:href', 'lake_area.png')
       //.attr('xlink:href', '/lake_area.png')
@@ -160,10 +161,7 @@ p { margin: 0 0 10px 0; }
     }
       
       function reset () {
-        scale = 1.0;
-        svg.attr("transform", "translate(0,0)scale(1,1)");
-        d3.zoom().scale(scale)
-            .translate([0,0]);
+        svg.attr("transform", "translate(0,0)scale(1)");
     }
   </script>
   
