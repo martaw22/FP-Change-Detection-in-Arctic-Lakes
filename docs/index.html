@@ -222,7 +222,7 @@ button {
     }
       
       function reset () {
-        svg.transition(750).call(zoom.transform, d3.zoomIdentity);
+        svg.transition().duration(750).call(zoom.transform, d3.zoomIdentity);
         
     }
       
