@@ -53,6 +53,11 @@ p { margin: 0 0 10px 0; }
 .footer a:hover {
   color: #ce3333;
 }
+button {
+  position: relative;
+  top: 90px;
+  left: 515px;
+}
   </style>
 </head>
 <body>
@@ -74,12 +79,12 @@ p { margin: 0 0 10px 0; }
 
   <section>
     <h2>Abstract</h2>
-    <em>We will be working with Catherine Kuhn who studies changes in Alaskan lakes from a rapidly changing climate as part of the NASA ABoVE project. We will be using data collected for several Alaskan lakes via both field campaigns monitoring lake chemistry and satellite imagery of lake color from Landsat. In Alaska alone, there are over 24,000 lakes so the big issue Catherine would like us to resolve is showing the large-scale structure of this dataset while also allowing a user to drill-down to a specific lake of interest. We aim to do this by building an interactive map of Alaska showing the lake locations, from which a user can then select a specific lake. Once a lake is selected, a pop-out will appear containing a gif of Landsat imagery showing the evolution of the lake’s color over time, time series plots of the satellite’s color channels, and other chemical data for the lakes if available. Given the large size of the Landsat images, we will create these gifs and time-series plots in Google Earth Engine, export them, and then build our interactive map dashboard using D3. Our visualization will be for a technical audience from this field.</em>
+    <em>We are working with Catherine Kuhn who studies changes in Alaskan lakes from a rapidly changing climate as part of the NASA ABoVE project. We are using data collected for several Alaskan lakes via both field campaigns monitoring lake chemistry and satellite imagery of lake color from Landsat. In Alaska alone, there are over 24,000 lakes so the big issue Catherine would like us to resolve is showing the large-scale structure of this dataset while also allowing a user to drill-down to a specific lake of interest. We did this by building an interactive map of Alaska showing the lake locations, from which a user can then select a specific lake. Once a lake is selected, a pop-out will appear containing a gif of Landsat imagery showing the evolution of the lake’s color over time, time series plots of the satellite’s color channels, and other chemical data for the lakes if available. Given the large size of the Landsat images, we created these gifs and time-series plots in Google Earth Engine, exported them, and then built our interactive map dashboard using D3. Our visualization is intended for a technical audience from this field.</em>
   </section>
 
   <section>
     <h2>Running Instructions</h2>
-    <em>[Add: running instructions for the software and other optional materials.]</em>
+    <em>We will be adding clickable circular marks to indicate the locations of our seven lakes of interest. For now, please click the red square (our temporary example "lake") to generate additional views with more detailed data for the selected "lake". In this details section for each lake, we will also include line plots for the other two visible bands of the satellite (red and green) as well as some chemical data we are hoping to receive tomorrow from our external collaborator. Use your mouse to pan and zoom in the Landsat image on the left. To return to the initial view, press the "Reset Map" button in the upper right corner of this image. The Alaska map is provided as a spatial reference for the user.</em>
   </section>
 
   <div class="footer">
@@ -95,41 +100,71 @@ p { margin: 0 0 10px 0; }
     <script>
     // Feel free to change or delete any of the code you see in this editor!
       
-    d3.select('button').on("click", reset);
+    
     
     var widthMap = 600, heightMap = 600;
-      
-    var zoom = d3.zoom()
-              .scaleExtent([1,10])
-              .translateExtent([[0, 0], [widthMap + 90, heightMap + 100]])
-              .on("zoom", zoomed)
+
+    var svg_title = d3.select("body")
+      .append("svg")
+      .attr("width", 1200)
+      .attr("height", 50)
+	
+    svg_title.selectAll('text').style("font-family", "sans-serif");
+
+    title1 = svg_title.append("text")
+    	.attr("transform", `translate(300,40)`)
+    	.style("text-anchor", "middle")
+    	.style("font-weight", 700)
+	    .style("font-size", 20)
+    	.text("Landsat Imagery of a Selected Region in Alaska");
+
+    title2 = svg_title.append("text")
+      .attr("transform", `translate(900,40)`)
+      .style("text-anchor", "middle")
+    	.style("font-weight", 700)
+	    .style("font-size", 20)
+    	.text("Detailed Information about Selected Body of Water");
    
     var svg = d3.select("body")
       .append("svg")
       .attr("width", 600)
       .attr("height", 600)
-      .call(zoom)
-      .append("g")
-      .attr('id','CON')
-    
-    svg.append("image")
-      .attr('xlink:href', 'lake_area.png')
-      .attr('id','MAP')
-      //.attr('xlink:href', '/lake_area.png')
-      .attr("x", 0)
-      .attr("y", 0)
-      .attr('width',1000)
-     // .attr("x", document.body.clientWidth / 2)
-     // .attr("y", document.body.clientHeight / 2)
-    
+
+    var zoom = d3.zoom()
+        .scaleExtent([1,10])
+        .translateExtent([[0, 0], [754.5, heightMap]])
+        .on("zoom", zoomed)
+
     svg.append("rect")
+    	.attr("width",600)
+    	.attr("height",600)
+    	.style("fill", "#000000")
+    	.attr("x", 0)
+    	.attr("y", 0)
+
+    
+    var lakeMap = svg.append("image")
+      .attr('xlink:href', 'lake_area.png')
+	    .attr('id','MAP')
+      .attr("x", 5)
+      .attr("y", 5)
+      //.attr('width',widthMap)
+	    .attr('height',heightMap-10)
+    
+    var lakePoint = svg.append("rect")
     .attr('id','LOC')
-    .attr("width", 5)
-    .attr("height", 5)
+    .attr("width", 15)
+    .attr("height", 15)
     .style("fill", "#f45342")
-    .attr("x", 10)
-    .attr("y", 30)
+    .attr("x", 300)
+    .attr("y", 270)
     .on('click', addGIFandChart)
+
+    var Alaska = svg.append("image")
+	     .attr('xlink:href', 'alaska.png')
+	     .attr("x",10)
+	     .attr("y",10)
+	     .attr("width",125)
     
     var svg2 = d3.select("body")
       .append("svg")
@@ -143,39 +178,66 @@ p { margin: 0 0 10px 0; }
     .style("fill", "#f45342")
     .attr("x", 0)
     .attr("y", 0)
+
+    d3.select('button').on("click", reset);
+    svg.call(zoom);
  
     function addGIFandChart() {
       d3.select('#GIF').remove()
       d3.select('#TS').remove()
+
+	lakePoint.style("fill", "#339CFF")
+
+
+	var gif_title = svg2.append("text")
+	    .attr("transform", `translate(300,15)`)
+    	.style("text-anchor", "middle")
+    	.style("font-weight", 700)
+	    .style("font-size", 16)
+    	.text("Animated Landsat Imagery");
+
       
       svg2.append("image")
       .attr('id','GIF')
       .attr('xlink:href', 'gifs/river.gif')
       .attr("x", 5)
-      .attr("y", 5)
+      .attr("y", 20)
       .attr("width", 590)
+
+	var ts_title = svg2.append("text")
+	    .attr("transform", `translate(300,380)`)
+    	.style("text-anchor", "middle")
+    	.style("font-weight", 700)
+	    .style("font-size", 16)
+    	.text("Landsat Blue Band Area-Mean Time Series");
+
       
       svg2.append("image")
       .attr('id','TS')
       .attr('xlink:href', 'timeseries/ee-chart_boot_blue.png')
       .attr("x", 5)
-      .attr("y", 400)
+      .attr("y", 385)
       .attr("width", 590)
+	//.attr("height", 100)
     }
       
       function reset () {
-        zoom.transform(svg, d3.zoomIdentity.scale(1));
-        //svg.call(zoom.transform, d3.zoomIdentity);
+        svg.transition(750).call(zoom.transform, d3.zoomIdentity);
         
     }
       
       function zoomed () {
-        zoom.transform(svg, d3.event.transform);
+        lakeMap.attr("transform", d3.event.transform);
+	   lakePoint.attr("transform", d3.event.transform);
       }
   </script>
   
   <br>
   <br>
+<br>
+<br>
+<br>
+
   
 </body>
 </html> 
