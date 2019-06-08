@@ -2,13 +2,18 @@
 <html xml:lang="en" lang="en">
 <head>
   <title>CSE512 | FP Change Detection in Arctic Lakes</title>
+<meta charset=utf-8 />
+<meta name='viewport' content='initial-scale=1,maximum-scale=1,user-scalable=no' />
   <script src="https://d3js.org/d3.v5.min.js"></script>
+<script src='https://api.mapbox.com/mapbox.js/v3.2.0/mapbox.js'></script>
+<link href='https://api.mapbox.com/mapbox.js/v3.2.0/mapbox.css' rel='stylesheet' />
   <style media="all">
 * { padding: 0; margin: 0; }
  body {
   margin: 0 auto 0 auto;
   padding: 0;
   max-width: 1200px;
+  height: 1280px;
   font-family: "Avenir", "Avenir Next", Helvetica Neue, Arial;
   font-size: 0.95em;
 }
@@ -58,6 +63,13 @@ button {
   top: 90px;
   left: 515px;
 }
+#map { height:550px; width:550px; position: absolute;}
+#chart { width: 597px; height: 165px; position: absolute;left:600px;}
+#chart2 { width: 597px; height: 165px; position: absolute;left:600px;top:165px;}
+#chart3 { width: 597px; height: 165px; position: absolute;left:600px;top:330px}
+#chart4 { width: 597px; height: 165px; position: absolute;left:600px;top:495px}
+#mainVideo { position:absolute;top:335px}
+}
   </style>
 </head>
 <body>
@@ -79,7 +91,7 @@ button {
 
   <section>
     <h2>Abstract</h2>
-    <em>We are working with Catherine Kuhn who studies changes in Alaskan lakes from a rapidly changing climate as part of the NASA ABoVE project. We are using data collected for several Alaskan lakes via both field campaigns monitoring lake chemistry and satellite imagery of lake color from Landsat. In Alaska alone, there are over 24,000 lakes so the big issue Catherine would like us to resolve is showing the large-scale structure of this dataset while also allowing a user to drill-down to a specific lake of interest. We did this by building an interactive map of Alaska showing the lake locations, from which a user can then select a specific lake. Once a lake is selected, a pop-out will appear containing a gif of Landsat imagery showing the evolution of the lake’s color over time, time series plots of the satellite’s color channels, and other chemical data for the lakes if available. Given the large size of the Landsat images, we created these gifs and time-series plots in Google Earth Engine, exported them, and then built our interactive map dashboard using D3. Our visualization is intended for a technical audience from this field.</em>
+    <em>We are working with Catherine Kuhn who studies changes in Alaskan lakes from a rapidly changing climate as part of the NASA ABoVE project. We are using data collected for several Alaskan lakes via both field campaigns monitoring lake chemistry and satellite imagery of lake color from Landsat. In Alaska alone, there are over 24,000 lakes so the big issue Catherine would like us to resolve is showing the large-scale structure of this dataset while also allowing a user to drill-down to a specific lake of interest. We did this by building an interactive map of Alaska showing the lake locations, from which a user can then select a specific lake. Once a lake is selected, a pop-out will appear containing a gif of Landsat imagery showing the evolution of the lake's color over time, time series plots of the satellite's color channels, and other chemical data for the lakes if available. Given the large size of the Landsat images, we created these gifs and time-series plots in Google Earth Engine, exported them, and then built our interactive map dashboard using D3. Our visualization is intended for a technical audience from this field.</em>
   </section>
 
   <section>
@@ -92,152 +104,120 @@ button {
     <a href="http://www.washington.edu">University of Washington</a>
   </div>
  </div>
-  
-  <br>
-  <button id='Reset'>Reset Map</button>
-  <br>
-  
-    <script>
-    // Feel free to change or delete any of the code you see in this editor!
-      
-    
-    
-    var widthMap = 600, heightMap = 600;
-
-    var svg_title = d3.select("body")
+<script>
+var svg_title = d3.select("body")
       .append("svg")
       .attr("width", 1200)
       .attr("height", 50)
-	
-    svg_title.selectAll('text').style("font-family", "sans-serif");
 
+
+svg_title.selectAll('text').style("font-family", "sans-serif");
     title1 = svg_title.append("text")
     	.attr("transform", `translate(300,40)`)
     	.style("text-anchor", "middle")
     	.style("font-weight", 700)
 	    .style("font-size", 20)
     	.text("Landsat Imagery of a Selected Region in Alaska");
-
     title2 = svg_title.append("text")
       .attr("transform", `translate(900,40)`)
       .style("text-anchor", "middle")
     	.style("font-weight", 700)
 	    .style("font-size", 20)
     	.text("Detailed Information about Selected Body of Water");
-   
-    var svg = d3.select("body")
-      .append("svg")
-      .attr("width", 600)
-      .attr("height", 600)
-
-    var zoom = d3.zoom()
-        .scaleExtent([1,10])
-        .translateExtent([[0, 0], [754.5, heightMap]])
-        .on("zoom", zoomed)
-
-    svg.append("rect")
-    	.attr("width",600)
-    	.attr("height",600)
-    	.style("fill", "#000000")
-    	.attr("x", 0)
-    	.attr("y", 0)
-
-    
-    var lakeMap = svg.append("image")
-      .attr('xlink:href', 'lake_area.png')
-	    .attr('id','MAP')
-      .attr("x", 5)
-      .attr("y", 5)
-      //.attr('width',widthMap)
-	    .attr('height',heightMap-10)
-    
-    var lakePoint = svg.append("rect")
-    .attr('id','LOC')
-    .attr("width", 15)
-    .attr("height", 15)
-    .style("fill", "#f45342")
-    .attr("x", 300)
-    .attr("y", 270)
-    .on('click', addGIFandChart)
-
-    var Alaska = svg.append("image")
-	     .attr('xlink:href', 'alaska.png')
-	     .attr("x",10)
-	     .attr("y",10)
-	     .attr("width",125)
-    
-    var svg2 = d3.select("body")
-      .append("svg")
-      .attr("width", 600)
-      .attr("height", 600)
-      .append("g")
-    
-    svg2.append("rect")
-    .attr("width",598)
-    .attr("height",600)
-    .style("fill", "#d6d6d6")
-    .attr("x", 2)
-    .attr("y", 0)
-
-    d3.select('button').on("click", reset);
-    svg.call(zoom);
- 
-    function addGIFandChart() {
-      d3.select('#GIF').remove()
-      d3.select('#TS').remove()
-
-	lakePoint.style("fill", "#339CFF")
+</script>
 
 
-	var gif_title = svg2.append("text")
-	    .attr("transform", `translate(300,15)`)
-    	.style("text-anchor", "middle")
-    	.style("font-weight", 700)
-	    .style("font-size", 16)
-    	.text("Animated Landsat Imagery");
+<div style="position:relative;" id="map-wrapper">
+  <div id="map" style="height:325px; border:0; width:597px;"></div>
+</div>
+<script>
+    // Feel free to change or delete any of the code you see in this editor!
 
-      
-      svg2.append("image")
-      .attr('id','GIF')
-      .attr('xlink:href', 'gifs/river.gif')
-      .attr("x", 5)
-      .attr("y", 20)
-      .attr("width", 590)
+ L.mapbox.accessToken = 'pk.eyJ1IjoibWFydGF3MjIiLCJhIjoiY2p3aW5jMmgxMDVpYjN6bjB1YTlrdnZxZSJ9.ah8AF2pYNbovJRcsba_STw';
+var map = L.mapbox.map('map')
+    .setView([66.4, -146], 8)
+    .addLayer(L.mapbox.styleLayer('mapbox://styles/mapbox/satellite-streets-v9'));
+var marker_1 = L.marker([66.095279, -146.731]).bindPopup('Greenpepper Lake').addTo(map);
+var marker_2 = L.marker([66.07318, -146.27]).bindPopup('Boot Lake').addTo(map);
+var marker_3 = L.marker([66.384025, -146.359]).bindPopup('Canvasback Lake').addTo(map);
+var marker_4 = L.marker([66.235088, -146.412]).bindPopup('Scoter Lake').addTo(map);
+var marker_5 = L.marker([66.320636, -146.267]).bindPopup('YF17 Lake').addTo(map);
+var marker_6 = L.marker([66.637751, -145.775]).bindPopup('YF20 Lake').addTo(map);
+var marker_7 = L.marker([66.185801, -146.661]).bindPopup('Nine Mile Lake').addTo(map);
 
-	var ts_title = svg2.append("text")
-	    .attr("transform", `translate(300,380)`)
-    	.style("text-anchor", "middle")
-    	.style("font-weight", 700)
-	    .style("font-size", 16)
-    	.text("Landsat Blue Band Area-Mean Time Series");
-
-      
-      svg2.append("image")
-      .attr('id','TS')
-      .attr('xlink:href', 'timeseries/ee-chart_boot_blue.png')
-      .attr("x", 5)
-      .attr("y", 385)
-      .attr("width", 590)
-	//.attr("height", 100)
-    }
-      
-      function reset () {
-        svg.transition().duration(750).call(zoom.transform, d3.zoomIdentity);
-        
-    }
-      
-      function zoomed () {
-        lakeMap.attr("transform", d3.event.transform);
-	   lakePoint.attr("transform", d3.event.transform);
-      }
   </script>
-  
-  <br>
-  <br>
-<br>
-<br>
-<br>
+</div>
 
+<div style='position:relative'>
+<video width="597" height="325" controls id="mainVideo">
+  <source src="bootlake_video_NOoli_30mpx.mp4" type="video/mp4">
+  Your browser does not support the video tag.
+</video>
+</div>
+
+
+<!-- TEMP SCRIPT GOES HERE -->
+<div style='position:relative'>
+<div id='chart' style='height:165px; border:0; width:597px;'></div>
+<div id='chart2' style='height:165px; border:0; width:597px;'></div>
+<div id='chart3' style='height:165px; border:0; width:597px;'>
+</div>
+<div id='chart4' style='height:165px; border:0; width:597px;'>
+</div>
+</div>
   
+
+
+
+
+<script type="module">
+import {Runtime, Inspector} from "https://cdn.jsdelivr.net/npm/@observablehq/runtime@4/dist/runtime.js";
+
+import notebook from "https://api.observablehq.com/@cdfredrickson/ninemile-lake-green-band-scatter-plot-with-median-line-with.js?v=3";
+
+new Runtime().module(notebook, name => {
+  if (name === "chart") {
+    return new Inspector(document.querySelector("#chart"));
+  }
+});
+</script>
+
+<script type="module">
+import {Runtime, Inspector} from "https://cdn.jsdelivr.net/npm/@observablehq/runtime@4/dist/runtime.js";
+
+import notebook from "https://api.observablehq.com/@cdfredrickson/ninemile-lake-green-band-scatter-plot-with-median-line-with.js?v=3";
+
+new Runtime().module(notebook, name => {
+  if (name === "chart") {
+    return new Inspector(document.querySelector("#chart2"));
+  }
+});
+</script>
+
+<script type="module">
+import {Runtime, Inspector} from "https://cdn.jsdelivr.net/npm/@observablehq/runtime@4/dist/runtime.js";
+
+import notebook from "https://api.observablehq.com/@cdfredrickson/ninemile-lake-green-band-scatter-plot-with-median-line-with.js?v=3";
+
+new Runtime().module(notebook, name => {
+  if (name === "chart") {
+    return new Inspector(document.querySelector("#chart3"));
+  }
+});
+</script>
+
+<script type="module">
+import {Runtime, Inspector} from "https://cdn.jsdelivr.net/npm/@observablehq/runtime@4/dist/runtime.js";
+
+import notebook from "https://api.observablehq.com/@cdfredrickson/ninemile-lake-green-band-scatter-plot-with-median-line-with.js?v=3";
+
+new Runtime().module(notebook, name => {
+  if (name === "chart") {
+    return new Inspector(document.querySelector("#chart4"));
+  }
+});
+</script>
+
+    
 </body>
 </html> 
