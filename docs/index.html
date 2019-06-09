@@ -133,24 +133,99 @@ svg_title.selectAll('text').style("font-family", "sans-serif");
 <script>
     // Feel free to change or delete any of the code you see in this editor!
 
+var lakes = [
+		["Boot Lake",66.07404,146.27066,0.73,72,8.31,"bootlake"],
+		["Canvasback Raft Lake",66.38303,146.35489,2.83,1.4,9.55,"canvasback"],
+		["Green Pepper Lake",66.09209,146.73557,0.97,10.3,9.02,"greenpepper"],
+		["Nine Mile Lake",66.18285,146.66376,3.33,1.8,9.46,"ninemile"],
+		["Scoter Lake",66.24241,146.39896,4.56,4.5,8.93,"scoter"],
+		["YF17",66.32072,146.27431,1.75,1.6,9.82,"yf17"],
+		["YF20",66.63715,145.77278,0.59,1.25,10.24,"yf20"],
+		];
+
  L.mapbox.accessToken = 'pk.eyJ1IjoibWFydGF3MjIiLCJhIjoiY2p3aW5jMmgxMDVpYjN6bjB1YTlrdnZxZSJ9.ah8AF2pYNbovJRcsba_STw';
 var map = L.mapbox.map('map')
     .setView([66.4, -146], 8)
     .addLayer(L.mapbox.styleLayer('mapbox://styles/mapbox/satellite-streets-v9'));
-var marker_1 = L.marker([66.095279, -146.731]).bindPopup('Greenpepper Lake').addTo(map);
-var marker_2 = L.marker([66.07318, -146.27]).bindPopup('Boot Lake').addTo(map);
-var marker_3 = L.marker([66.384025, -146.359]).bindPopup('Canvasback Lake').addTo(map);
-var marker_4 = L.marker([66.235088, -146.412]).bindPopup('Scoter Lake').addTo(map);
-var marker_5 = L.marker([66.320636, -146.267]).bindPopup('YF17 Lake').addTo(map);
-var marker_6 = L.marker([66.637751, -145.775]).bindPopup('YF20 Lake').addTo(map);
-var marker_7 = L.marker([66.185801, -146.661]).bindPopup('Nine Mile Lake').addTo(map);
+
+
+var marker_1 = L.marker([66.07318, -146.27]).addTo(map);
+marker_1.bindPopup(lakes[0][0],lakes[0][3]).openPopup();
+marker_1._icon.id = lakes[0][6];
+var marker_2 = L.marker([66.384025, -146.359]).bindPopup('Canvasback Lake').addTo(map);
+marker_2._icon.id = lakes[1][6];
+var marker_3 = L.marker([66.095279, -146.731]).bindPopup('Greenpepper Lake').addTo(map);
+marker_3._icon.id = lakes[2][6];
+var marker_4 = L.marker([66.185801, -146.661]).bindPopup('Nine Mile Lake').addTo(map);
+marker_4._icon.id = lakes[3][6];
+var marker_5 = L.marker([66.235088, -146.412]).bindPopup('Scoter Lake').addTo(map);
+marker_5._icon.id = lakes[4][6];
+var marker_6 = L.marker([66.320636, -146.267]).bindPopup('YF17 Lake').addTo(map);
+marker_6._icon.id = lakes[5][6];
+var marker_7 = L.marker([66.637751, -145.775]).bindPopup('YF20 Lake').addTo(map);
+marker_7._icon.id = lakes[6][6];
+
+
+
+marker_1.on('click', function() {
+var video_test = document.getElementById('mainVideo');
+var source_test = document.getElementById('mainVideosrc');
+source_test.setAttribute('src', 'videos/final_'+ lakes[0][6] +'.mp4');
+video_test.load()
+});
+
+marker_2.on('click', function() {
+var video_test = document.getElementById('mainVideo');
+var source_test = document.getElementById('mainVideosrc');
+source_test.setAttribute('src', 'videos/final_'+ lakes[1][6] +'.mp4');
+video_test.load();
+});
+
+marker_3.on('click', function() {
+var video_test = document.getElementById('mainVideo');
+var source_test = document.getElementById('mainVideosrc');
+source_test.setAttribute('src', 'videos/final_'+ lakes[2][6] +'.mp4');
+video_test.load();
+});
+
+marker_4.on('click', function() {
+var video_test = document.getElementById('mainVideo');
+var source_test = document.getElementById('mainVideosrc');
+source_test.setAttribute('src', 'videos/final_'+ lakes[3][6] +'.mp4');
+video_test.load();
+});
+
+marker_5.on('click', function() {
+var video_test = document.getElementById('mainVideo');
+var source_test = document.getElementById('mainVideosrc');
+source_test.setAttribute('src', 'videos/final_'+ lakes[4][6] +'.mp4');
+video_test.load();
+});
+
+marker_6.on('click', function() {
+var video_test = document.getElementById('mainVideo');
+var source_test = document.getElementById('mainVideosrc');
+source_test.setAttribute('src', 'videos/final_'+ lakes[5][6] +'.mp4');
+video_test.load();
+});
+
+marker_7.on('click', function() {
+var video_test = document.getElementById('mainVideo');
+var source_test = document.getElementById('mainVideosrc');
+source_test.setAttribute('src', 'videos/final_'+ lakes[6][6] +'.mp4');
+video_test.load();
+});
+
+
+
+
 
   </script>
 </div>
 
 <div style='position:relative'>
 <video width="597" height="325" controls id="mainVideo">
-  <source src="bootlake_video_NOoli_30mpx.mp4" type="video/mp4">
+  <source src="videos/final_bootlake.mp4" type="video/mp4" id="mainVideosrc">
   Your browser does not support the video tag.
 </video>
 </div>
@@ -169,53 +244,202 @@ var marker_7 = L.marker([66.185801, -146.661]).bindPopup('Nine Mile Lake').addTo
 
 
 
-
 <script type="module">
 import {Runtime, Inspector} from "https://cdn.jsdelivr.net/npm/@observablehq/runtime@4/dist/runtime.js";
 
-import notebook from "https://api.observablehq.com/@cdfredrickson/ninemile-lake-green-band-scatter-plot-with-median-line-with.js?v=3";
+import notebook from "https://api.observablehq.com/@cdfredrickson/boot-lake-red-band-scatter-plot-with-median-line-with-circle.js?v=3";
 
-new Runtime().module(notebook, name => {
+const main1 = new Runtime().module(notebook, name => {
   if (name === "chart") {
     return new Inspector(document.querySelector("#chart"));
   }
 });
+
+
+document.getElementById(lakes[0][6]).addEventListener('click', function () { 
+main1.redefine("datalink","https://gist.githubusercontent.com/martaw22/ae9a43cdbea6e2ff08673364156944c2/raw/8de2f7b81a118432a13a9c0be27134aee743f2d2/red_boot.csv");
+}, false);
+
+document.getElementById(lakes[1][6]).addEventListener('click', function () { 
+main1.redefine("datalink","https://gist.githubusercontent.com/martaw22/2c8fb3455c5ee85d2a2fb4d6a2b18d7d/raw/8fea2666f01c2438afa1f8ee034c54c10a8aec4f/cb_red.csv");
+}, false);
+
+
+document.getElementById(lakes[2][6]).addEventListener('click', function () { 
+main1.redefine("datalink","https://gist.githubusercontent.com/martaw22/40eda6c39e84801d5ee9e2815b9ab93e/raw/b3b91a9f05836c8303755676e00b69db4dd7ee5d/red_gp.csv");
+}, false);
+
+
+document.getElementById(lakes[3][6]).addEventListener('click', function () { 
+main1.redefine("datalink","https://gist.githubusercontent.com/martaw22/b6bd5a343a8064dc2f213cd365cf00eb/raw/50754fa82bf0c2be9c663a11f45d9cc9ee5df5a9/nm_red.csv");
+}, false);
+
+
+document.getElementById(lakes[4][6]).addEventListener('click', function () { 
+main1.redefine("datalink","https://gist.githubusercontent.com/martaw22/463dadc1c3190ea73f6f3826786d31c4/raw/69ac7ea8f651be9692a39b67730e8c0bd3265821/scoter_red.csv");
+}, false);
+
+
+document.getElementById(lakes[5][6]).addEventListener('click', function () { 
+main1.redefine("datalink","https://gist.githubusercontent.com/martaw22/65b279be73d845e4b24095ba363e2bdc/raw/663e22eed7d920ec01f6a2b554571b5fa2e702e5/YF17_red.csv");
+}, false);
+
+
+document.getElementById(lakes[6][6]).addEventListener('click', function () { 
+main1.redefine("datalink","https://gist.githubusercontent.com/martaw22/8eeb3657d7173984f258040a1a7639e4/raw/677bd890117d5d4d629ea952e56a4d26159cd1dc/YF20_red_properdate.csv");
+}, false);
+
+
 </script>
+
+
+
+
+
 
 <script type="module">
 import {Runtime, Inspector} from "https://cdn.jsdelivr.net/npm/@observablehq/runtime@4/dist/runtime.js";
 
-import notebook from "https://api.observablehq.com/@cdfredrickson/ninemile-lake-green-band-scatter-plot-with-median-line-with.js?v=3";
+import notebook from "https://api.observablehq.com/@cdfredrickson/boot-lake-green-band-scatter-plot-with-median-line-with-circ.js?v=3";
 
-new Runtime().module(notebook, name => {
+const main2 = new Runtime().module(notebook, name => {
   if (name === "chart") {
     return new Inspector(document.querySelector("#chart2"));
   }
 });
+
+
+document.getElementById(lakes[0][6]).addEventListener('click', function () { 
+main2.redefine("datalink","https://gist.githubusercontent.com/martaw22/191d95d0bc022609c3d9acbd07aa59f8/raw/af15eeb227b73d2d33d55c3e8cb2d32da87bb861/green_boot.csv");
+}, false);
+
+document.getElementById(lakes[1][6]).addEventListener('click', function () { 
+main2.redefine("datalink","https://gist.githubusercontent.com/martaw22/fdab12799cbbc810dbb19480e7bb2f12/raw/9c9d158ab3766f7448bff2b7204ce229a46c1349/cb_green.csv");
+}, false);
+
+
+document.getElementById(lakes[2][6]).addEventListener('click', function () { 
+main2.redefine("datalink","https://gist.githubusercontent.com/martaw22/82859283beb7628c352cbc003079038d/raw/82fe919b6a4a6f312320adcf57e0fa1f3381e8d5/green_gp.csv");
+}, false);
+
+
+document.getElementById(lakes[3][6]).addEventListener('click', function () { 
+main2.redefine("datalink","https://gist.githubusercontent.com/martaw22/7848fa15158af69bb51f09fc5dc24e2d/raw/4ccda782ab0535fa02a8cf4906fd832a891de10c/nm_green.csv");
+}, false);
+
+
+document.getElementById(lakes[4][6]).addEventListener('click', function () { 
+main2.redefine("datalink","https://gist.githubusercontent.com/martaw22/d02c980e774cf589e207b4fc652168c9/raw/b7ba24dca047e013a2cd85297a4d6d79f2d17da6/scoter_green.csv");
+}, false);
+
+
+document.getElementById(lakes[5][6]).addEventListener('click', function () { 
+main2.redefine("datalink","https://gist.githubusercontent.com/martaw22/9c7511bafa6801c4b3292a6e2ed88f6c/raw/67372a23548e135110d949f4f7a953939f2f2a79/YF17_green.csv");
+}, false);
+
+
+document.getElementById(lakes[6][6]).addEventListener('click', function () { 
+main2.redefine("datalink","https://gist.githubusercontent.com/martaw22/937669e406e7949d2362863dee1fd124/raw/13bd851ce6aae3fdbad009aa0b8a92ebdcb5e807/YF20_green.csv");
+}, false);
+
 </script>
+
+
+
+
 
 <script type="module">
 import {Runtime, Inspector} from "https://cdn.jsdelivr.net/npm/@observablehq/runtime@4/dist/runtime.js";
 
-import notebook from "https://api.observablehq.com/@cdfredrickson/ninemile-lake-green-band-scatter-plot-with-median-line-with.js?v=3";
+import notebook from "https://api.observablehq.com/@cdfredrickson/boot-lake-blue-band-scatter-plot-with-median-line-with-circl.js?v=3";
 
-new Runtime().module(notebook, name => {
+const main3 = new Runtime().module(notebook, name => {
   if (name === "chart") {
     return new Inspector(document.querySelector("#chart3"));
   }
 });
+
+document.getElementById(lakes[0][6]).addEventListener('click', function () { 
+main3.redefine("datalink","https://gist.githubusercontent.com/martaw22/845f22a1204820cfa609377c4141734c/raw/a7819e253c38671a09f1b107d3544d68af66102d/blue_boot.csv");
+}, false);
+
+document.getElementById(lakes[1][6]).addEventListener('click', function () { 
+main3.redefine("datalink","https://gist.githubusercontent.com/martaw22/bdda4f2c613846b9023fbf08fbcb38c9/raw/1c76b2686981873dae91181b286107951c7ad075/cb_blue.csv");
+}, false);
+
+
+document.getElementById(lakes[2][6]).addEventListener('click', function () { 
+main3.redefine("datalink","https://gist.githubusercontent.com/martaw22/ddf9f88527fd17515ef367088bf68c48/raw/30bdd7eb84d8209cab45980c9758bf947933c41c/blue_gp.csv");
+}, false);
+
+
+document.getElementById(lakes[3][6]).addEventListener('click', function () { 
+main3.redefine("datalink","https://gist.githubusercontent.com/martaw22/bbe4d2a6817bba8b3d9071e1310d1fad/raw/b69fa3f7bd4063e0af6059bc34091a3a3afe55bc/nm_blue.csv");
+}, false);
+
+
+document.getElementById(lakes[4][6]).addEventListener('click', function () { 
+main3.redefine("datalink","https://gist.githubusercontent.com/martaw22/2c39e70b196925130c9c600692f78eac/raw/88fee8e9d1273e82f7faac579b5528d21c972ddd/scoter_blue.csv");
+}, false);
+
+
+document.getElementById(lakes[5][6]).addEventListener('click', function () { 
+main3.redefine("datalink","https://gist.githubusercontent.com/martaw22/abb577c9e2b864f22d8f9136c93063e0/raw/a99c8ffb75c8b4f3bd4e4d68886259d503694bf7/YF17_blue.csv");
+}, false);
+
+
+document.getElementById(lakes[6][6]).addEventListener('click', function () { 
+main3.redefine("datalink","https://gist.githubusercontent.com/martaw22/be9c0fb2823026d98fabe29e0f962e12/raw/8e8d1bb3a1d65f0e97ca730a545d7367dfa2996c/YF20_blue.csv");
+}, false);
+
 </script>
+
+
 
 <script type="module">
 import {Runtime, Inspector} from "https://cdn.jsdelivr.net/npm/@observablehq/runtime@4/dist/runtime.js";
 
-import notebook from "https://api.observablehq.com/@cdfredrickson/ninemile-lake-green-band-scatter-plot-with-median-line-with.js?v=3";
+import notebook from "https://api.observablehq.com/@cdfredrickson/boot-lake-ir-band-scatter-plot-with-median-line-with-circles.js?v=3";
 
-new Runtime().module(notebook, name => {
+const main4 = new Runtime().module(notebook, name => {
   if (name === "chart") {
     return new Inspector(document.querySelector("#chart4"));
   }
 });
+
+document.getElementById(lakes[0][6]).addEventListener('click', function () { 
+main4.redefine("datalink","https://gist.githubusercontent.com/martaw22/f618fefdf4b9c3d27d6015950cd52821/raw/94aefb9f11ff8bbd2635df5c6fa0e09e5c218221/IR_boot.csv");
+}, false);
+
+document.getElementById(lakes[1][6]).addEventListener('click', function () { 
+main4.redefine("datalink","https://gist.githubusercontent.com/martaw22/f6845b70891d4ff42c6ee06775018ef0/raw/d4516b8b741a78726cfe8a61c8341ebec7f12a56/cb_IR.csv");
+}, false);
+
+
+document.getElementById(lakes[2][6]).addEventListener('click', function () { 
+main4.redefine("datalink","https://gist.githubusercontent.com/martaw22/d94ee343a9df2821ce21dfece1b5854f/raw/5e33c04172b5145b21200c407e824798c5b87b34/IR_gp.csv");
+}, false);
+
+
+document.getElementById(lakes[3][6]).addEventListener('click', function () { 
+main4.redefine("datalink","https://gist.githubusercontent.com/martaw22/75716129b3688575d6696162e375615a/raw/4b84456c79b1af5285897efd2a6215caee043b9d/nm_IR.csv");
+}, false);
+
+
+document.getElementById(lakes[4][6]).addEventListener('click', function () { 
+main4.redefine("datalink","https://gist.githubusercontent.com/martaw22/d2d5dac6d0f1b72afbe9126fa1aa4129/raw/8393884acca0e7ea1037c1f3c6019fd9ba6caa2d/scoter_IR.csv");
+}, false);
+
+
+document.getElementById(lakes[5][6]).addEventListener('click', function () { 
+main4.redefine("datalink","https://gist.githubusercontent.com/martaw22/ef192af3ec965141fc77965637eeb4aa/raw/45fd935ffcc7ded62a46ad6d5f0302ad4b6e6ebe/YF17_IR.csv");
+}, false);
+
+
+document.getElementById(lakes[6][6]).addEventListener('click', function () { 
+main4.redefine("datalink","https://gist.githubusercontent.com/martaw22/b4aa6f397cb326b73c769de5da19e1bb/raw/5c653cc95bd46adf9aa8ae1d2e1f75936fea27fb/YF20_IR.csv");
+}, false);
+
 </script>
 
     
