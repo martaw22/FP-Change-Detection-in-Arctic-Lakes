@@ -105,38 +105,36 @@ button {
   </div>
  </div>
 
-<div style = 'position:relative'>
-<div id='summary' style='height:400px; border:0; width:400px; margin: 0px 0px 0px;'>
-</div>
-<div id='summary2' style='height:400px; border:0; width:400px; margin: 0px 0px 0px;'>
-</div>
-</div>
+
+<script>
+var svg_summary = d3.select("body")
+	.append("svg")
+	.attr("width", 1200)
+	.attr("height", 400)
+	.append("g")
+
+svg_summary.append("image")
+	.attr('id','GIF1')
+      .attr('xlink:href', 'summary/summary1.gif')
+      .attr("x", 0)
+      .attr("y", 0)
+      .attr("width", 200)
+
+svg_summary.append("image")
+	.attr('id','GIF2')
+	.attr('xlink:href', 'summary/summary2.gif')
+      .attr("x", 400)
+      .attr("y", 0)
+      .attr("width", 400)
+
+svg_summary.append("image")
+	.attr('id','GIF3')
+	.attr('xlink:href', 'summary/summary3.gif')
+      .attr("x", 800)
+      .attr("y", 0)
+      .attr("width", 400)
 
 
-
-
-<script type="module">
-import {Runtime, Inspector} from "https://cdn.jsdelivr.net/npm/@observablehq/runtime@4/dist/runtime.js";
-
-import notebook from "https://api.observablehq.com/@martaw22/summary-figure-median-for-all-lakes-normalized.js?v=3";
-
-const summary1 = new Runtime().module(notebook, name => {
-  if (name === "chart") {
-    return new Inspector(document.querySelector("#summary"));
-  }
-});
-</script>
-
-<script type="module">
-import {Runtime, Inspector} from "https://cdn.jsdelivr.net/npm/@observablehq/runtime@4/dist/runtime.js";
-
-import notebook from "https://api.observablehq.com/@martaw22/bar-chart-of-pixel-counts-by-year-at-nine-mile-lake.js?v=3";
-
-const summary2 = new Runtime().module(notebook, name => {
-  if (name === "chart") {
-    return new Inspector(document.querySelector("#summary2"));
-  }
-});
 </script>
 
 
@@ -170,13 +168,13 @@ svg_title.selectAll('text').style("font-family", "sans-serif");
     // Feel free to change or delete any of the code you see in this editor!
 
 var lakes = [
-		["Boot Lake",66.07404,146.27066,0.73,72,8.31,"bootlake"],
-		["Canvasback Raft Lake",66.38303,146.35489,2.83,1.4,9.55,"canvasback"],
-		["Green Pepper Lake",66.09209,146.73557,0.97,10.3,9.02,"greenpepper"],
-		["Nine Mile Lake",66.18285,146.66376,3.33,1.8,9.46,"ninemile"],
-		["Scoter Lake",66.24241,146.39896,4.56,4.5,8.93,"scoter"],
-		["YF17",66.32072,146.27431,1.75,1.6,9.82,"yf17"],
-		["YF20",66.63715,145.77278,0.59,1.25,10.24,"yf20"],
+		["Boot Lake",66.1,146.3,0.73,72,8.31,"bootlake"],
+		["Canvasback Lake",66.4,146.4,2.83,1.4,9.55,"canvasback"],
+		["Green Pepper Lake",66.1,146.7,0.97,10.3,9.02,"greenpepper"],
+		["Nine Mile Lake",66.2,146.7,3.33,1.8,9.46,"ninemile"],
+		["Scoter Lake",66.2,146.4,4.56,4.5,8.93,"scoter"],
+		["YF17",66.3,146.3,1.75,1.6,9.82,"yf17"],
+		["YF20",66.6,145.8,0.59,1.25,10.24,"yf20"],
 		];
 
  L.mapbox.accessToken = 'pk.eyJ1IjoibWFydGF3MjIiLCJhIjoiY2p3aW5jMmgxMDVpYjN6bjB1YTlrdnZxZSJ9.ah8AF2pYNbovJRcsba_STw';
@@ -184,21 +182,71 @@ var map = L.mapbox.map('map')
     .setView([66.4, -146], 8)
     .addLayer(L.mapbox.styleLayer('mapbox://styles/mapbox/satellite-streets-v9'));
 
+var list1 = "Name: <b>" + lakes[0][0] + "</b><br>"
+          + "Coordinates: "+lakes[0][1]+" <sup>o</sup>N, " +lakes[0][2]+" <sup>o</sup>W<br>"
+	     + "Area: "+ lakes[0][3] + " km<sup>2</sup>" + "<br>"
+		+ "Depth: " + lakes[0][4] + " m" + "<br>"
+		+ "pH: " + lakes[0][5] + "<br>";
+
+var list2 = "Name: <b>" + lakes[1][0] + "</b><br>"
+          + "Coordinates: "+lakes[1][1]+ " <sup>o</sup>N, " +lakes[1][2]+" <sup>o</sup>W<br>"
+	     + "Area: "+ lakes[1][3] + " km<sup>2</sup>" + "<br>"
+		+ "Depth: " + lakes[1][4] + " m" + "<br>"
+		+ "pH: " + lakes[1][5] + "<br>";
+
+var list3 = "Name: <b>" + lakes[2][0] + "</b><br>"
+          + "Coordinates: "+lakes[2][1]+" <sup>o</sup>N, " +lakes[2][2]+" <sup>o</sup>W<br>"
+	     + "Area: "+ lakes[2][3] + " km<sup>2</sup>" + "<br>"
+		+ "Depth: " + lakes[2][4] + " m" + "<br>"
+		+ "pH: " + lakes[2][5] + "<br>";
+
+var list4 = "Name: <b>" + lakes[3][0] + "</b><br>"
+          + "Coordinates: "+lakes[3][1]+" <sup>o</sup>N, " +lakes[3][2]+" <sup>o</sup>W<br>"
+	     + "Area: "+ lakes[3][3] + " km<sup>2</sup>" + "<br>"
+		+ "Depth: " + lakes[3][4] + " m" + "<br>"
+		+ "pH: " + lakes[3][5] + "<br>";
+
+var list5 = "Name: <b>" + lakes[4][0] + "</b><br>"
+          + "Coordinates: "+lakes[4][1]+" <sup>o</sup>N, " +lakes[4][2]+" <sup>o</sup>W<br>"
+	     + "Area: "+ lakes[4][3] + " km<sup>2</sup>" + "<br>"
+		+ "Depth: " + lakes[4][4] + " m" + "<br>"
+		+ "pH: " + lakes[4][5] + "<br>";
+
+var list6 = "Name: <b>" + lakes[5][0] + "</b><br>"
+          + "Coordinates: "+lakes[5][1]+" <sup>o</sup>N, " +lakes[5][2]+" <sup>o</sup>W<br>"
+	     + "Area: "+ lakes[5][3] + " km<sup>2</sup>" + "<br>"
+		+ "Depth: " + lakes[5][4] + " m" + "<br>"
+		+ "pH: " + lakes[5][5] + "<br>";
+
+var list7 = "Name: <b>" + lakes[6][0] + "</b><br>"
+          + "Coordinates: "+lakes[6][1]+" <sup>o</sup>N, " +lakes[6][2]+" <sup>o</sup>W<br>"
+	     + "Area: "+ lakes[6][3] + " km<sup>2</sup>" + "<br>"
+		+ "Depth: " + lakes[6][4] + " m" + "<br>"
+		+ "pH: " + lakes[6][5] + "<br>";
+
+
+
 
 var marker_1 = L.marker([66.07318, -146.27]).addTo(map);
-marker_1.bindPopup(lakes[0][0],lakes[0][3]).openPopup();
+marker_1.bindPopup(list1).openPopup();
 marker_1._icon.id = lakes[0][6];
-var marker_2 = L.marker([66.384025, -146.359]).bindPopup('Canvasback Lake').addTo(map);
+
+var marker_2 = L.marker([66.384025, -146.359]).bindPopup(list2).addTo(map);
 marker_2._icon.id = lakes[1][6];
-var marker_3 = L.marker([66.095279, -146.731]).bindPopup('Greenpepper Lake').addTo(map);
+
+var marker_3 = L.marker([66.095279, -146.731]).bindPopup(list3).addTo(map);
 marker_3._icon.id = lakes[2][6];
-var marker_4 = L.marker([66.185801, -146.661]).bindPopup('Nine Mile Lake').addTo(map);
+
+var marker_4 = L.marker([66.185801, -146.661]).bindPopup(list4).addTo(map);
 marker_4._icon.id = lakes[3][6];
-var marker_5 = L.marker([66.235088, -146.412]).bindPopup('Scoter Lake').addTo(map);
+
+var marker_5 = L.marker([66.235088, -146.412]).bindPopup(list5).addTo(map);
 marker_5._icon.id = lakes[4][6];
-var marker_6 = L.marker([66.320636, -146.267]).bindPopup('YF17 Lake').addTo(map);
+
+var marker_6 = L.marker([66.320636, -146.267]).bindPopup(list6).addTo(map);
 marker_6._icon.id = lakes[5][6];
-var marker_7 = L.marker([66.637751, -145.775]).bindPopup('YF20 Lake').addTo(map);
+
+var marker_7 = L.marker([66.637751, -145.775]).bindPopup(list7).addTo(map);
 marker_7._icon.id = lakes[6][6];
 
 
