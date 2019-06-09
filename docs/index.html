@@ -104,6 +104,42 @@ button {
     <a href="http://www.washington.edu">University of Washington</a>
   </div>
  </div>
+
+<div style = 'position:relative'>
+<div id='summary' style='height:400px; border:0; width:400px; margin: 0px 0px 0px;'>
+</div>
+<div id='summary2' style='height:400px; border:0; width:400px; margin: 0px 0px 0px;'>
+</div>
+</div>
+
+
+
+
+<script type="module">
+import {Runtime, Inspector} from "https://cdn.jsdelivr.net/npm/@observablehq/runtime@4/dist/runtime.js";
+
+import notebook from "https://api.observablehq.com/@martaw22/summary-figure-median-for-all-lakes-normalized.js?v=3";
+
+const summary1 = new Runtime().module(notebook, name => {
+  if (name === "chart") {
+    return new Inspector(document.querySelector("#summary"));
+  }
+});
+</script>
+
+<script type="module">
+import {Runtime, Inspector} from "https://cdn.jsdelivr.net/npm/@observablehq/runtime@4/dist/runtime.js";
+
+import notebook from "https://api.observablehq.com/@martaw22/bar-chart-of-pixel-counts-by-year-at-nine-mile-lake.js?v=3";
+
+const summary2 = new Runtime().module(notebook, name => {
+  if (name === "chart") {
+    return new Inspector(document.querySelector("#summary2"));
+  }
+});
+</script>
+
+
 <script>
 var svg_title = d3.select("body")
       .append("svg")
@@ -247,7 +283,7 @@ video_test.load();
 <script type="module">
 import {Runtime, Inspector} from "https://cdn.jsdelivr.net/npm/@observablehq/runtime@4/dist/runtime.js";
 
-import notebook from "https://api.observablehq.com/@cdfredrickson/boot-lake-red-band-scatter-plot-with-median-line-with-circle.js?v=3";
+import notebook from "https://api.observablehq.com/@martaw22/boot-lake-red-band-scatter-plot-with-median-line-with-circle.js?v=3";
 
 const main1 = new Runtime().module(notebook, name => {
   if (name === "chart") {
@@ -300,7 +336,7 @@ main1.redefine("datalink","https://gist.githubusercontent.com/martaw22/8eeb3657d
 <script type="module">
 import {Runtime, Inspector} from "https://cdn.jsdelivr.net/npm/@observablehq/runtime@4/dist/runtime.js";
 
-import notebook from "https://api.observablehq.com/@cdfredrickson/boot-lake-green-band-scatter-plot-with-median-line-with-circ.js?v=3";
+import notebook from "https://api.observablehq.com/@martaw22/boot-lake-green-band-scatter-plot-with-median-line-with-circ.js?v=3";
 
 const main2 = new Runtime().module(notebook, name => {
   if (name === "chart") {
@@ -351,7 +387,7 @@ main2.redefine("datalink","https://gist.githubusercontent.com/martaw22/937669e40
 <script type="module">
 import {Runtime, Inspector} from "https://cdn.jsdelivr.net/npm/@observablehq/runtime@4/dist/runtime.js";
 
-import notebook from "https://api.observablehq.com/@cdfredrickson/boot-lake-blue-band-scatter-plot-with-median-line-with-circl.js?v=3";
+import notebook from "https://api.observablehq.com/@martaw22/boot-lake-blue-band-scatter-plot-with-median-line-with-circl.js?v=3";
 
 const main3 = new Runtime().module(notebook, name => {
   if (name === "chart") {
@@ -399,7 +435,7 @@ main3.redefine("datalink","https://gist.githubusercontent.com/martaw22/be9c0fb28
 <script type="module">
 import {Runtime, Inspector} from "https://cdn.jsdelivr.net/npm/@observablehq/runtime@4/dist/runtime.js";
 
-import notebook from "https://api.observablehq.com/@cdfredrickson/boot-lake-ir-band-scatter-plot-with-median-line-with-circles.js?v=3";
+import notebook from "https://api.observablehq.com/@martaw22/boot-lake-ir-band-scatter-plot-with-median-line-with-circles.js?v=3";
 
 const main4 = new Runtime().module(notebook, name => {
   if (name === "chart") {
