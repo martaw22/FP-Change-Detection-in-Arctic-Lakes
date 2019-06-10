@@ -7,13 +7,15 @@
   <script src="https://d3js.org/d3.v5.min.js"></script>
 <script src='https://api.mapbox.com/mapbox.js/v3.2.0/mapbox.js'></script>
 <link href='https://api.mapbox.com/mapbox.js/v3.2.0/mapbox.css' rel='stylesheet' />
+<link rel="stylesheet" href="http://maxcdn.bootstrapcdn.com/font-awesome/4.3.0/css/font-awesome.min.css"/>
+<link rel="stylesheet" href="leaflet.zoomhome.css"/>
+<script src="leaflet.zoomhome.min.js"></script>
   <style media="all">
 * { padding: 0; margin: 0; }
  body {
   margin: 0 auto 0 auto;
   padding: 0;
   max-width: 1200px;
-  height: 1280px;
   font-family: "Avenir", "Avenir Next", Helvetica Neue, Arial;
   font-size: 0.95em;
 }
@@ -110,29 +112,29 @@ button {
 var svg_summary = d3.select("body")
 	.append("svg")
 	.attr("width", 1200)
-	.attr("height", 400)
+	.attr("height", 220)
 	.append("g")
 
 svg_summary.append("image")
 	.attr('id','GIF1')
-      .attr('xlink:href', 'summary/summary1.gif')
+      .attr('xlink:href', 'summary/summary1.png')
       .attr("x", 0)
       .attr("y", 0)
-      .attr("width", 200)
+      .attr("height", 220)
 
 svg_summary.append("image")
 	.attr('id','GIF2')
-	.attr('xlink:href', 'summary/summary2.gif')
-      .attr("x", 400)
+	.attr('xlink:href', 'summary/summary2.png')
+      .attr("x", 305)
       .attr("y", 0)
-      .attr("width", 400)
+      .attr("height", 220)
 
 svg_summary.append("image")
 	.attr('id','GIF3')
-	.attr('xlink:href', 'summary/summary3.gif')
-      .attr("x", 800)
+	.attr('xlink:href', 'summary/summary3.png')
+      .attr("x", 755)
       .attr("y", 0)
-      .attr("width", 400)
+      .attr("height", 220)
 
 
 </script>
@@ -181,6 +183,11 @@ var lakes = [
 var map = L.mapbox.map('map')
     .setView([66.4, -146], 8)
     .addLayer(L.mapbox.styleLayer('mapbox://styles/mapbox/satellite-streets-v9'));
+
+map.removeControl( map.zoomControl );
+
+var zoomHome = L.Control.zoomHome();
+zoomHome.addTo(map);
 
 var list1 = "Name: <b>" + lakes[0][0] + "</b><br>"
           + "Coordinates: "+lakes[0][1]+" <sup>o</sup>N, " +lakes[0][2]+" <sup>o</sup>W<br>"
