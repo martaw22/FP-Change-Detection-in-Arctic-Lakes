@@ -67,12 +67,12 @@ button {
   top: 90px;
   left: 515px;
 }
-#map { height:550px; width:550px; position: absolute;}
-#chart { width: 597px; height: 165px; position: absolute;left:600px;}
-#chart2 { width: 597px; height: 165px; position: absolute;left:600px;top:165px;}
-#chart3 { width: 597px; height: 165px; position: absolute;left:600px;top:330px}
-#chart4 { width: 597px; height: 165px; position: absolute;left:600px;top:495px}
-#mainVideo { position:absolute;top:335px}
+#map { height:550px; width:550px; position: absolute;left:50px;}
+#chart { width: 597px; height: 165px; position: absolute;left:600px;top:-78px;}
+#chart2 { width: 597px; height: 165px; position: absolute;left:600px;top:87px;}
+#chart3 { width: 597px; height: 165px; position: absolute;left:600px;top:252px}
+#chart4 { width: 597px; height: 165px; position: absolute;left:600px;top:417px}
+#mainVideo { position:absolute;top:290px;left:50px;}
 }
   </style>
 </head>
@@ -95,12 +95,23 @@ button {
 
   <section>
     <h2>Abstract</h2>
-    <em>We are working with Catherine Kuhn who studies changes in Alaskan lakes from a rapidly changing climate as part of the NASA ABoVE project. We are using data collected for several Alaskan lakes via both field campaigns monitoring lake chemistry and satellite imagery of lake color from Landsat. In Alaska alone, there are over 24,000 lakes so the big issue Catherine would like us to resolve is showing the large-scale structure of this dataset while also allowing a user to drill-down to a specific lake of interest. We did this by building an interactive map of Alaska showing the lake locations, from which a user can then select a specific lake. Once a lake is selected, a pop-out will appear containing a gif of Landsat imagery showing the evolution of the lake's color over time, time series plots of the satellite's color channels, and other chemical data for the lakes if available. Given the large size of the Landsat images, we created these gifs and time-series plots in Google Earth Engine, exported them, and then built our interactive map dashboard using D3. Our visualization is intended for a technical audience from this field.</em>
+    <em>NASA Arctic and Boreal Vulnerability Experiment (ABoVE) project researchers want to study changes in individual Arctic lakes over the past 35 years. Field work is difficult in the Arctic so the researchers use a significant amount of satellite data. However, displaying tens of thousands of Arctic lakes on a view while also allowing for drill-down to individual lakes is tricky. Additionally, while Landsat satellites typically collect an image over an individual lake every 15 days heavy cloud cover obscures the lake's surface greater than 60% of the time in this region. This means that careful filtering must be applied in order to remove these cloudy scenes while not removing any especially bright (e.g., snowy) land in the process. The data files from Landsat are also quite large, requiring cloud computing resources such as Google Earth Engine (GEE) if to view them and significant scripting to remove clouds and examine a region of interest over time. In order to make these data more accessible and to facilitate quick comparisons between lakes, we developed a data visualization framework that allows our technical end-users to explore seven Arctic lakes of interest to our collaborator. This tool can easily be scaled up in the future to include any other lakes of interest to the broader, technical audience of the ABoVe science team.</em>
   </section>
 
   <section>
     <h2>Running Instructions</h2>
-    <em>We will be adding clickable circular marks to indicate the locations of our seven lakes of interest. For now, please click the red square (our temporary example "lake") to generate additional views with more detailed data for the selected "lake". In this details section for each lake, we will also include line plots for the other two visible bands of the satellite (red and green) as well as some chemical data we are hoping to receive tomorrow from our external collaborator. Use your mouse to pan and zoom in the Landsat image on the left. To return to the initial view, press the "Reset Map" button in the upper right corner of this image. The Alaska map is provided as a spatial reference for the user.</em>
+    <em>Check out the top three figures to get an idea of how the amount of Landsat data in this region varies interannually and seasonally over our time period of interest (1984-2019) and how the signals in the different satellite bands vary between lakes. To explore the Landsat data for a specific lake in more detail, click on its marker on the map and additional views will appear. First, a popup will open on the map giving you more detailed information, such as name, location, and other identifying features. Second, a timelapse video of your selected lake will load below the map. Third, timeseries charts for each satellite band's intensity over your selected lake will update. Please use Chrome for optimal interaction.
+<br>
+<br>
+Many interesting processes can be seen in the videos such as:
+<br>
+<br>
+<ul>
+<li>the occurrence of wildfires as evidenced by scotched tan or red earth around a lake's edge (e.g, in 2005 at Canvasback Lake)</li>
+<li>relatively low/high precipitation years, which show up as rapid loss/growth in the area of the lake (e.g., in 2007 and 2014 at Canvasback Lake)</li>
+<li>algal blooms which turn the lake much especially green (e.g., in 1986 and 1999 at Ninemile Lake, 1989 and 2009 at YF17)</li>
+<li>sediment input from rivers during rainy years (e.g., on the left side of YF20 in 2015)</li>
+</ul></em>
   </section>
 
   <div class="footer">
@@ -111,6 +122,20 @@ button {
 
 
 <script>
+var svg_sum_title = d3.select("body")
+	.append("svg")
+	.attr("width", 1200)
+	.attr("height", 68)
+	.append("g")
+
+svg_sum_title.selectAll('text').style("font-family", "sans-serif");
+    title = svg_sum_title.append("text")
+    	.attr("transform", `translate(600,40)`)
+    	.style("text-anchor", "middle")
+    	.style("font-weight", 700)
+	    .style("font-size", 20)
+    	.text("Summary of Landsat Data Distribution over Time and by Lake");
+
 var svg_summary = d3.select("body")
 	.append("svg")
 	.attr("width", 1200)
@@ -119,34 +144,33 @@ var svg_summary = d3.select("body")
 
 svg_summary.append("image")
 	.attr('id','GIF1')
-      .attr('xlink:href', 'summary/summary1.png')
+      .attr('xlink:href', 'summary/summary2.png')
       .attr("x", 0)
       .attr("y", 0)
       .attr("height", 220)
 
 svg_summary.append("image")
 	.attr('id','GIF2')
-	.attr('xlink:href', 'summary/summary2.png')
-      .attr("x", 305)
+	.attr('xlink:href', 'summary/summary3.png')
+      .attr("x", 440)
       .attr("y", 0)
       .attr("height", 220)
 
 svg_summary.append("image")
 	.attr('id','GIF3')
-	.attr('xlink:href', 'summary/summary3.png')
-      .attr("x", 755)
+	.attr('xlink:href', 'summary/summary1.png')
+      .attr("x", 880)
       .attr("y", 0)
       .attr("height", 220)
 
 
 </script>
 
-
 <script>
 var svg_title = d3.select("body")
       .append("svg")
       .attr("width", 1200)
-      .attr("height", 50)
+      .attr("height", 68)
 
 
 svg_title.selectAll('text').style("font-family", "sans-serif");
@@ -162,11 +186,46 @@ svg_title.selectAll('text').style("font-family", "sans-serif");
     	.style("font-weight", 700)
 	    .style("font-size", 20)
     	.text("Time Series of Individual Satellite Bands for Selected Lake");
+	subtitle2 = svg_title.append("text")
+	 .attr("transform", `translate(900,57)`)
+      .style("text-anchor", "middle")
+    	.style("font-weight", 400)
+	    .style("font-size", 12)
+    	.text("Intensity values range from 0 (no band saturation) to 1 (full band saturation)");
+
+
 </script>
 
-
 <div style="position:relative;" id="map-wrapper">
-  <div id="map" style="height:325px; border:0; width:597px;"></div>
+  <div id="map" style="height:296px; border:0; width:500px;"></div>
+<script>
+var svg_vidtitle = d3.select("body")
+      .append("svg")
+      .attr("width", 597)
+      .attr("height", 73)
+	.attr("transform",`translate(0,296)`)
+
+svg_vidtitle.selectAll('text').style("font-family", "sans-serif");
+    title = svg_vidtitle.append("text")
+    	.attr("transform", `translate(300,33)`)
+    	.style("text-anchor", "middle")
+    	.style("font-weight", 700)
+	    .style("font-size", 20)
+    	.text("Satellite Imagery of Selected Lake over Time");
+    subtitle1 = svg_vidtitle.append("text")
+	 .attr("transform", `translate(300,50)`)
+      .style("text-anchor", "middle")
+    	.style("font-weight", 400)
+	    .style("font-size", 12)
+    	.text("Keep your eye out for changes in color and size of lake");
+	subtitle2 = svg_vidtitle.append("text")
+	 .attr("transform", `translate(300,63)`)
+       .style("text-anchor", "middle")
+    	  .style("font-weight", 400)
+	  .style("font-size", 12)
+    	 .text("Fire damage in the greenery surrounding the lake (i.e., a sudden shift to red or tan earth) can also be seen");
+</script>
+
 </div>
 <script>
     // Feel free to change or delete any of the code you see in this editor!
@@ -183,7 +242,7 @@ var lakes = [
 
  L.mapbox.accessToken = 'pk.eyJ1IjoibWFydGF3MjIiLCJhIjoiY2p3aW5jMmgxMDVpYjN6bjB1YTlrdnZxZSJ9.ah8AF2pYNbovJRcsba_STw';
 var map = L.mapbox.map('map')
-    .setView([66.4, -146], 8)
+    .setView([66.4, -146], 7)
     .addLayer(L.mapbox.styleLayer('mapbox://styles/mapbox/satellite-streets-v9'));
 
 map.removeControl( map.zoomControl );
@@ -319,8 +378,9 @@ video_test.load();
   </script>
 </div>
 
+
 <div style='position:relative'>
-<video width="597" height="325" controls id="mainVideo">
+<video width="500" height="291" controls id="mainVideo">
   <source src="videos/final_bootlake.mp4" type="video/mp4" id="mainVideosrc">
   Your browser does not support the video tag.
 </video>
