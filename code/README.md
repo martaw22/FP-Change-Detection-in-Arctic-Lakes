@@ -2,8 +2,8 @@ This folder contains all the code used in Google Earth Engine
 
 Links to the Observable Notebooks and Gist Files containing the data exported from Google Earth Engine:
 
-Go to the link for each notebook to create a time series plot
-To create time series plots for different lakes, change the gist file used defined as data
+Go to the link for each notebook to create a time series plot   
+To create time series plots for different lakes, change the gist file defined as 'data'  
 
 Observable Notebook Links to Time Series Plots:
 https://observablehq.com/@martaw22/boot-lake-green-band-scatter-plot-with-median-line-with-circ
@@ -21,7 +21,7 @@ https://observablehq.com/@martaw22/near-ir-band-canvasback-minus-yf20
 https://observablehq.com/@martaw22/blue-band-canvasback-minus-yf20/2
 
 
-Summary Figures
+Summary Figures  
 
 Annual Bar Chart Plot
 https://observablehq.com/@martaw22/bar-chart-of-pixel-counts-by-year
