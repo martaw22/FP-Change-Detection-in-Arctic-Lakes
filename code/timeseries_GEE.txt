@@ -1,0 +1,1006 @@
+//Draw the shapes around the lakes or import the shapes as .kml files into Google Earth Engine to run code
+
+//Cloud masking function from Catherine for LS8
+// create function to select only clear pixels
+var cloudMaskKuhnL8 = function(image){
+  // make a new single band image from the pixel qa band
+  var pixel_qa = image.select('pixel_qa'); 
+  // keep only clear pixels over land or water
+    return image.updateMask((pixel_qa.eq(324)).or(pixel_qa.eq(322))).copyProperties(image);   
+};
+
+//cloud masking functions from Catherine for LS5 and 7
+// create function to select only clear pixels
+var cloudMaskKuhnL57 = function(image){
+  // make a new single band image from the pixel qa band
+  var pixel_qa = image.select('pixel_qa'); 
+  // keep only clear pixels over land or water
+    return image.updateMask((pixel_qa.eq(68)).or(pixel_qa.eq(66))).copyProperties(image);   
+};
+
+//Landsat 8 has a slightly different signal than L5 and 7, so this is a standard way to transform L8 to make it more comparable to L5 and L7
+// -----------------------------------------------------------------
+// Harmonize Landsat Collection
+// -----------------------------------------------------------------
+
+// slope and intercept citation: Roy, D.P., Kovalskyy, V., Zhang, H.K., Vermote, E.F., Yan, L., Kumar, S.S, Egorov, A., 2016, Characterization of Landsat-7 to Landsat-8 reflective wavelength and normalized difference vegetation index continuity, Remote Sensing of Environment, 185, 57-70.(http://dx.doi.org/10.1016/j.rse.2015.12.024); Table 2 - reduced major axis (RMA) regression coefficients
+// harmonize oli to tm
+
+var oli2tm = function(oli) {
+  var slopes = ee.Image.constant([0.9785, 0.9542, 0.9825, 1.0073, 1.0171, 0.9949]);
+  var itcp = ee.Image.constant([-0.0095, -0.0016, -0.0022, -0.0021, -0.0030, 0.0029]);
+  var y = oli.select(['B2','B3','B4','B5','B6','B7'],['B1', 'B2', 'B3', 'B4', 'B5', 'B7'])
+             .resample('bicubic')
+             .subtract(itcp.multiply(10000)).divide(slopes)
+             .set('system:time_start', oli.get('system:time_start'))//;
+  var y_1 = y.toShort()
+  var y_2 = y_1.addBands(oli.select('pixel_qa')).addBands(oli.select('sr_aerosol'));
+  return y_2.copyProperties(oli);
+};
+
+//function for scaling of LS8
+var L8collection_scaled_blue = function(image){
+  
+  var scaledblue =  image.select('blue').multiply(0.0001);
+  return ee.Image(scaledblue.copyProperties(image)).set('system:time_start', image.get('system:time_start'));
+};
+var L8collection_scaled_green = function(image){
+  var scaledgreen =  image.select('green').multiply(0.0001);
+  return ee.Image(scaledgreen.copyProperties(image)).set('system:time_start', image.get('system:time_start'));
+};
+var L8collection_scaled_red = function(image){
+  var scaledred =  image.select('red').multiply(0.0001);
+  return ee.Image(scaledred.copyProperties(image)).set('system:time_start', image.get('system:time_start'));
+};
+var L8collection_scaled_IR = function(image){
+  var scaledIR =  image.select('IR').multiply(0.0001);
+  return ee.Image(scaledIR.copyProperties(image)).set('system:time_start', image.get('system:time_start'));
+};
+
+
+// Mask saturated pixels. Apply this AFTER scaling or change the 2 to 20,000 if doing it before scaling
+var maskSaturatedPixels_blue= function(image){
+  // make a new single band image from the pixel qa band
+  var blue_band = image.select('blue'); 
+  // keep only clear pixels over land or water
+  return image.updateMask(( blue_band.lt(2))).copyProperties(image);   
+};
+var maskSaturatedPixels_green= function(image){
+  // make a new single band image from the pixel qa band
+  var green_band = image.select('green'); 
+  // keep only clear pixels over land or water
+  return image.updateMask(( green_band.lt(2))).copyProperties(image);   
+};
+var maskSaturatedPixels_red= function(image){
+  // make a new single band image from the pixel qa band
+  var red_band = image.select('red'); 
+  // keep only clear pixels over land or water
+  return image.updateMask(( red_band.lt(2))).copyProperties(image);   
+};
+var maskSaturatedPixels_IR= function(image){
+  // make a new single band image from the pixel qa band
+  var IR_band = image.select('IR'); 
+  // keep only clear pixels over land or water
+  return image.updateMask(( IR_band.lt(2))).copyProperties(image);   
+};
+
+
+// Mask negative pixels. Apply this AFTER scaling or change the 2 to 20,000 if doing it before scaling
+var maskNegativePixels_blue= function(image){
+  // make a new single band image from the blue band
+  var blue_band = image.select('blue'); 
+  // keep only clear pixels over land or water
+  return image.updateMask((blue_band.gt(0))).copyProperties(image);   
+};
+var maskNegativePixels_green= function(image){
+  // make a new single band image from the blue band
+  var green_band = image.select('green'); 
+  // keep only clear pixels over land or water
+  return image.updateMask((green_band.gt(0))).copyProperties(image);   
+};
+var maskNegativePixels_red= function(image){
+  // make a new single band image from the blue band
+  var red_band = image.select('red'); 
+  // keep only clear pixels over land or water
+  return image.updateMask((red_band.gt(0))).copyProperties(image);   
+};
+var maskNegativePixels_IR= function(image){
+  // make a new single band image from the blue band
+  var IR_band = image.select('IR'); 
+  // keep only clear pixels over land or water
+  return image.updateMask((IR_band.gt(0))).copyProperties(image);   
+};
+
+
+// map over collection
+//var l8 = l8.map(oli2tm);
+
+
+//Add lakes to map layer
+
+Map.addLayer(lakes, {}, 'lakes');
+
+print(lakes, 'lakes');
+
+
+//pick just one lake in the dataset to work with
+var lake = lakes.filterMetadata('name', 'equals', 'Nine mile')
+print(lake)
+
+Map.centerObject(lake, 7);
+Map.addLayer(lake, {}, 'Nine mile');
+
+var alaska = ee.ImageCollection((landsat8Collection)
+  //Filter to get only images in region of interest
+  .filterBounds(GreenPepper)
+  //select just the optical bands
+  .select(['B[1-7]'])
+  );
+print(alaska, 'Alaska');
+
+
+//Greenpepper Lake
+//load Landsat 8 input imagery for the area in Alaska and with optical bands
+//load all Landsat 8 tier 1 SR image within the lake area for the last year
+var l8collection = ee.ImageCollection('LANDSAT/LC08/C01/T1_SR')
+  .filterBounds(GreenPepper)
+print(l8collection, 'l8collection');
+
+//using L8 filter specifically
+var l8masking = l8collection.map(oli2tm);
+// using new cloud masking function on the LS8 data
+var l8masked2 = l8masking.map(cloudMaskKuhnL8);
+
+//try to use landsat 7 
+//load all Landsat 7 tier 1 SR image within the lake area for the last year
+var l7collection = ee.ImageCollection('LANDSAT/LE07/C01/T1_SR')
+  .filterBounds(GreenPepper)
+print(l7collection, 'l7collection');
+
+//use mask clouds function for LS7
+var l7masked2 = l7collection.map(cloudMaskKuhnL57);
+print(l7masked2, 'l7masked2');
+
+//load all Landsat 5 tier 1 SR image within the lake area 
+var l5collection = ee.ImageCollection("LANDSAT/LT05/C01/T1_SR")
+  .filterBounds(GreenPepper);
+print(l5collection, 'l5collection');
+
+//use mask clouds function for LS5
+var l5masked = l5collection.map(cloudMaskKuhnL57);
+print(l5masked, 'l5masked');
+
+
+
+//YF17 Lake
+//load all Landsat 8 tier 1 SR image within the lake area for the last year
+var l8collection_YF17 = ee.ImageCollection('LANDSAT/LC08/C01/T1_SR')
+  .filterBounds(YF17);
+print(l8collection_YF17, 'l8collection YF17');
+
+//using L8 filter specifically
+var l8masking_YF17 = l8collection_YF17.map(oli2tm);
+// using new cloud masking function on the LS8 data
+var l8masked2_YF17 = l8masking_YF17.map(cloudMaskKuhnL8);
+
+//try to use landsat 7 
+//load all Landsat 7 tier 1 SR image within the lake area for the last year
+var l7collection_YF17 = ee.ImageCollection('LANDSAT/LE07/C01/T1_SR')
+  .filterBounds(YF17);
+print(l7collection_YF17, 'l7collection YF17');
+
+//use mask clouds function for LS7
+var l7masked2_YF17 = l7collection_YF17.map(cloudMaskKuhnL57);
+print(l7masked2_YF17, 'l7masked YF17');
+
+//load all Landsat 5 tier 1 SR image within the lake area 
+var l5collection_YF17 = ee.ImageCollection("LANDSAT/LT05/C01/T1_SR")
+  .filterBounds(YF17);
+print(l5collection_YF17, 'l5collection YF17');
+
+//use mask clouds function for LS5
+var l5masked_YF17 = l5collection_YF17.map(cloudMaskKuhnL57);
+print(l5masked_YF17, 'l5masked YF17');
+
+
+
+//Scoter Lake
+//load all Landsat 8 tier 1 SR image within the lake area for the last year
+var l8collection_Scoter = ee.ImageCollection('LANDSAT/LC08/C01/T1_SR')
+  .filterBounds(Scoter);
+print(l8collection_Scoter, 'l8collection Scoter');
+
+//using L8 filter specifically
+var l8masking_Scoter = l8collection_Scoter.map(oli2tm);
+// using new cloud masking function on the LS8 data
+var l8masked2_Scoter = l8masking_Scoter.map(cloudMaskKuhnL8);
+
+//try to use landsat 7 
+//load all Landsat 7 tier 1 SR image within the lake area for the last year
+var l7collection_Scoter = ee.ImageCollection('LANDSAT/LE07/C01/T1_SR')
+  .filterBounds(Scoter);
+print(l7collection_Scoter, 'l7collection Scoter');
+
+//use mask clouds function for LS7
+var l7masked2_Scoter = l7collection_Scoter.map(cloudMaskKuhnL57);
+print(l7masked2_Scoter, 'l7masked Scoter');
+
+//load all Landsat 5 tier 1 SR image within the lake area 
+var l5collection_Scoter = ee.ImageCollection("LANDSAT/LT05/C01/T1_SR")
+  .filterBounds(Scoter);
+print(l5collection_Scoter, 'l5collection Scoter');
+
+//use mask clouds function for LS5
+var l5masked_Scoter = l5collection_Scoter.map(cloudMaskKuhnL57);
+print(l5masked_Scoter, 'l5masked Scoter');
+
+
+
+
+//Canvasback Lake
+//load all Landsat 8 tier 1 SR image within the lake area for the last year
+var l8collection_Canvasback = ee.ImageCollection('LANDSAT/LC08/C01/T1_SR')
+  .filterBounds(Canvasback);
+print(l8collection_Canvasback, 'l8collection Canvasback');
+
+//using L8 filter specifically
+var l8masking_Canvasback = l8collection.map(oli2tm);
+// using new cloud masking function on the LS8 data
+var l8masked2_Canvasback = l8masking_Canvasback.map(cloudMaskKuhnL8);
+
+//try to use landsat 7 
+//load all Landsat 7 tier 1 SR image within the lake area for the last year
+var l7collection_Canvasback = ee.ImageCollection('LANDSAT/LE07/C01/T1_SR')
+  .filterBounds(Canvasback);
+print(l7collection_Canvasback, 'l7collection Canvasback');
+
+//use mask clouds function for LS7
+var l7masked2_Canvasback = l7collection_Canvasback.map(cloudMaskKuhnL57);
+print(l7masked2_Canvasback, 'l7masked Canvasback');
+
+//load all Landsat 5 tier 1 SR image within the lake area 
+var l5collection_Canvasback = ee.ImageCollection("LANDSAT/LT05/C01/T1_SR")
+  .filterBounds(Canvasback);
+print(l5collection_Canvasback, 'l5collection Canvasback');
+
+//use mask clouds function for LS5
+var l5masked_Canvasback = l5collection_Canvasback.map(cloudMaskKuhnL57);
+print(l5masked_Canvasback, 'l5masked Canvasback');
+
+
+
+
+//Boot Lake
+//load all Landsat 8 tier 1 SR image within the lake area for the last year
+var l8collection_boot = ee.ImageCollection('LANDSAT/LC08/C01/T1_SR')
+  .filterBounds(Boot);
+print(l8collection_boot, 'l8collection boot');
+
+//using L8 filter specifically
+var l8masking_boot = l8collection.map(oli2tm);
+// using new cloud masking function on the LS8 data
+var l8masked2_boot = l8masking_boot.map(cloudMaskKuhnL8);
+
+//try to use landsat 7 
+//load all Landsat 7 tier 1 SR image within the lake area for the last year
+var l7collection_boot = ee.ImageCollection('LANDSAT/LE07/C01/T1_SR')
+  .filterBounds(Boot);
+print(l7collection_boot, 'l7collection boot');
+
+//use mask clouds function for LS7
+var l7masked2_boot = l7collection_boot.map(cloudMaskKuhnL57);
+print(l7masked2_boot, 'l7masked boot');
+
+//load all Landsat 5 tier 1 SR image within the lake area 
+var l5collection_boot = ee.ImageCollection("LANDSAT/LT05/C01/T1_SR")
+  .filterBounds(Boot);
+print(l5collection_boot, 'l5collection boot');
+
+//use mask clouds function for LS5
+var l5masked_boot = l5collection_boot.map(cloudMaskKuhnL57);
+print(l5masked_boot, 'l5masked boot');
+
+
+
+//YF20 Lake
+//load all Landsat 8 tier 1 SR image within the lake area for the last year
+var l8collection_YF20 = ee.ImageCollection('LANDSAT/LC08/C01/T1_SR')
+  .filterBounds(YF20);
+print(l8collection_YF20, 'l8collection YF20');
+
+//using L8 filter specifically
+var l8masking_YF20 = l8collection.map(oli2tm);
+// using new cloud masking function on the LS8 data
+var l8masked2_YF20 = l8masking_YF20.map(cloudMaskKuhnL8);
+
+//try to use landsat 7 
+//load all Landsat 7 tier 1 SR image within the lake area for the last year
+var l7collection_YF20 = ee.ImageCollection('LANDSAT/LE07/C01/T1_SR')
+  .filterBounds(YF20);
+print(l7collection_YF20, 'l7collection YF20');
+
+//use mask clouds function for LS7
+var l7masked2_YF20 = l7collection_YF20.map(cloudMaskKuhnL57);
+print(l7masked2_YF20, 'l7masked YF20');
+
+//load all Landsat 5 tier 1 SR image within the lake area 
+var l5collection_YF20 = ee.ImageCollection("LANDSAT/LT05/C01/T1_SR")
+  .filterBounds(YF20);
+print(l5collection_YF20, 'l5collection YF20');
+
+//use mask clouds function for LS5
+var l5masked_YF20 = l5collection_YF20.map(cloudMaskKuhnL57);
+print(l5masked_YF20, 'l5masked YF20');
+
+
+
+//Ninemile Lake
+//load all Landsat 8 tier 1 SR image within the lake area for the last year
+var l8collection_Ninemile = ee.ImageCollection('LANDSAT/LC08/C01/T1_SR')
+  .filterBounds(Ninemile);
+print(l8collection_Ninemile, 'l8collection Ninemile');
+
+//using L8 filter specifically
+var l8masking_Ninemile = l8collection.map(oli2tm);
+// using new cloud masking function on the LS8 data
+var l8masked2_Ninemile = l8masking_Ninemile.map(cloudMaskKuhnL8);
+
+//try to use landsat 7 
+//load all Landsat 7 tier 1 SR image within the lake area for the last year
+var l7collection_Ninemile = ee.ImageCollection('LANDSAT/LE07/C01/T1_SR')
+  .filterBounds(Ninemile);
+print(l7collection_Ninemile, 'l7collection Ninemile');
+
+//use mask clouds function for LS7
+var l7masked2_Ninemile = l7collection_Ninemile.map(cloudMaskKuhnL57);
+print(l7masked2_Ninemile, 'l7masked Ninemile');
+
+//load all Landsat 5 tier 1 SR image within the lake area 
+var l5collection_Ninemile = ee.ImageCollection("LANDSAT/LT05/C01/T1_SR")
+  .filterBounds(Ninemile);
+print(l5collection_Ninemile, 'l5collection Ninemile');
+
+//use mask clouds function for LS5
+var l5masked_Ninemile = l5collection_Ninemile.map(cloudMaskKuhnL57);
+print(l5masked_Ninemile, 'l5masked Ninemile');
+
+
+
+///////////////////////////////////////
+
+//Greenpepper Lake
+// Select and (optionally) rename bands.
+
+var l5masked_renamed = l5masked.select(
+    ['B1', 'B2', 'B3', 'B4'], // old names
+    ['blue', 'green', 'red', 'IR']               // new names
+);
+print(l5masked_renamed, 'renamed5');
+
+var l7masked2_renamed = l7masked2.select(
+    ['B1', 'B2', 'B3', 'B4'], // old names
+    ['blue', 'green', 'red', 'IR']               // new names
+);
+//print(l7masked2_renamed, 'renamed7');
+
+var l8masked_renamed = l8masked2.select(
+    ['B2', 'B3', 'B4', 'B5'], // old names
+    ['blue', 'green', 'red', 'IR']               // new names
+);
+//print(l8masked_renamed, 'renamed8');
+
+//Boot Lake
+// Select and (optionally) rename bands.
+
+// Select and (optionally) rename bands.
+var l5masked_renamed_boot = l5masked_boot.select(
+    ['B1', 'B2', 'B3', 'B4'], // old names
+    ['blue', 'green', 'red', 'IR']               // new names
+);
+//print(l5masked_renamed_boot, 'renamed5 boot');
+
+var l7masked2_renamed_boot = l7masked2_boot.select(
+    ['B1', 'B2', 'B3', 'B4'], // old names
+    ['blue', 'green', 'red', 'IR']               // new names
+);
+//print(l7masked2_renamed_boot, 'renamed7 boot');
+
+var l8masked_renamed_boot = l8masked2_boot.select(
+    ['B2', 'B3', 'B4', 'B5'], // old names
+    ['blue', 'green', 'red', 'IR']               // new names
+);
+//print(l8masked_renamed_boot, 'renamed8_boot');
+
+//Canvasback Lake
+
+// Select and (optionally) rename bands.
+var l5masked_renamed_Canvasback = l5masked_Canvasback.select(
+    ['B1', 'B2', 'B3', 'B4'], // old names
+    ['blue', 'green', 'red', 'IR']               // new names
+);
+//print(l5masked_renamed_Canvasback, 'renamed5 Canvasback');
+
+var l7masked2_renamed_Canvasback = l7masked2_Canvasback.select(
+    ['B1', 'B2', 'B3', 'B4'], // old names
+    ['blue', 'green', 'red', 'IR']               // new names
+);
+//print(l7masked2_renamed_Canvasback, 'renamed7 Canvasback');
+
+var l8masked_renamed_Canvasback = l8masked2_Canvasback.select(
+    ['B2', 'B3', 'B4', 'B5'], // old names
+    ['blue', 'green', 'red', 'IR']               // new names
+);
+//print(l8masked_renamed_Canvasback, 'renamed8_Canvasback');
+
+//Scoter Lake
+
+// Select and (optionally) rename bands.
+var l5masked_renamed_Scoter = l5masked_Scoter.select(
+    ['B1', 'B2', 'B3', 'B4'], // old names
+    ['blue', 'green', 'red', 'IR']               // new names
+);
+//print(l5masked_renamed_Scoter, 'renamed5 Scoter');
+
+var l7masked2_renamed_Scoter = l7masked2_Scoter.select(
+    ['B1', 'B2', 'B3', 'B4'], // old names
+    ['blue', 'green', 'red', 'IR']               // new names
+);
+//print(l7masked2_renamed_Scoter, 'renamed7 Scoter');
+
+var l8masked_renamed_Scoter = l8masked2_Scoter.select(
+    ['B2', 'B3', 'B4', 'B5'], // old names
+    ['blue', 'green', 'red', 'IR']               // new names
+);
+//print(l8masked_renamed_Scoter, 'renamed8_Scoter');
+
+//YF17 Lake
+
+
+// Select and (optionally) rename bands.
+var l5masked_renamed_YF17 = l5masked_YF17.select(
+    ['B1', 'B2', 'B3', 'B4'], // old names
+    ['blue', 'green', 'red', 'IR']               // new names
+);
+//print(l5masked_renamed_YF17, 'renamed5 YF17');
+
+var l7masked2_renamed_YF17 = l7masked2_YF17.select(
+    ['B1', 'B2', 'B3', 'B4'], // old names
+    ['blue', 'green', 'red', 'IR']               // new names
+);
+//print(l7masked2_renamed_YF17, 'renamed7 YF17');
+
+var l8masked_renamed_YF17 = l8masked2_YF17.select(
+    ['B2', 'B3', 'B4', 'B5'], // old names
+    ['blue', 'green', 'red', 'IR']               // new names
+);
+//print(l8masked_renamed_YF17, 'renamed8_YF17');
+
+//YF20 Lake
+
+
+// Select and (optionally) rename bands.
+var l5masked_renamed_YF20 = l5masked_YF20.select(
+    ['B1', 'B2', 'B3', 'B4'], // old names
+    ['blue', 'green', 'red', 'IR']               // new names
+);
+//print(l5masked_renamed_YF17, 'renamed5 YF17');
+
+var l7masked2_renamed_YF20 = l7masked2_YF20.select(
+    ['B1', 'B2', 'B3', 'B4'], // old names
+    ['blue', 'green', 'red', 'IR']               // new names
+);
+//print(l7masked2_renamed_YF17, 'renamed7 YF17');
+
+var l8masked_renamed_YF20 = l8masked2_YF20.select(
+    ['B2', 'B3', 'B4', 'B5'], // old names
+    ['blue', 'green', 'red', 'IR']               // new names
+);
+//print(l8masked_renamed_YF17, 'renamed8_YF17');
+
+//Ninemile Lake
+
+// Select and (optionally) rename bands.
+var l5masked_renamed_Ninemile = l5masked_Ninemile.select(
+    ['B1', 'B2', 'B3', 'B4'], // old names
+    ['blue', 'green', 'red', 'IR']               // new names
+);
+
+var l7masked2_renamed_Ninemile = l7masked2_Ninemile.select(
+    ['B1', 'B2', 'B3', 'B4'], // old names
+    ['blue', 'green', 'red', 'IR']               // new names
+);
+
+var l8masked_renamed_Ninemile = l8masked2_Ninemile.select(
+    ['B2', 'B3', 'B4', 'B5'], // old names
+    ['blue', 'green', 'red', 'IR']               // new names
+);
+
+
+/////////////////////////////////////////////
+
+//Combine datasets for Greenpepper
+
+// merge collections
+var LS_merged78 = l7masked2_renamed.merge(l8masked_renamed);
+//print(LS_merged78);
+
+var LS_merged = LS_merged78.merge(l5masked_renamed)
+print(LS_merged, 'LS Merged');
+
+//Combine datasets for Boot Lake
+
+// merge collections
+var LS_merged78_boot = l7masked2_renamed_boot.merge(l8masked_renamed_boot);
+//print(LS_merged78);
+
+var LS_merged_boot = LS_merged78_boot.merge(l5masked_renamed_boot)
+print(LS_merged_boot, 'LS Merged Boot');
+
+//Combine datasets for Canvasback Lake
+
+// merge collections
+var LS_merged78_Canvasback = l7masked2_renamed_Canvasback.merge(l8masked_renamed_Canvasback);
+//print(LS_merged78);
+
+var LS_merged_Canvasback = LS_merged78_Canvasback.merge(l5masked_renamed_Canvasback)
+print(LS_merged_Canvasback, 'LS Merged Canvasback');
+
+//Combine datasets for Scoter Lake
+
+// merge collections
+var LS_merged78_Scoter = l7masked2_renamed_Scoter.merge(l8masked_renamed_Scoter);
+//print(LS_merged78);
+
+var LS_merged_Scoter = LS_merged78_Scoter.merge(l5masked_renamed_Scoter)
+print(LS_merged_Scoter, 'LS Merged Scoter');
+
+//Combine datasets for YF17 Lake
+
+// merge collections
+var LS_merged78_YF17 = l7masked2_renamed_YF17.merge(l8masked_renamed_YF17);
+//print(LS_merged78);
+
+var LS_merged_YF17 = LS_merged78_YF17.merge(l5masked_renamed_YF17)
+print(LS_merged_YF17, 'LS Merged YF17');
+
+//Combine datasets for YF20 Lake
+
+// merge collections
+var LS_merged78_YF20 = l7masked2_renamed_YF20.merge(l8masked_renamed_YF20);
+//print(LS_merged78);
+
+var LS_merged_YF20 = LS_merged78_YF20.merge(l5masked_renamed_YF20)
+print(LS_merged_YF20, 'LS Merged YF20');
+
+//Combine datasets for Ninemile Lake
+
+// merge collections
+var LS_merged78_Ninemile = l7masked2_renamed_Ninemile.merge(l8masked_renamed_Ninemile);
+//print(LS_merged78);
+
+var LS_merged_Ninemile = LS_merged78_Ninemile.merge(l5masked_renamed_Ninemile)
+print(LS_merged_Ninemile, 'LS Merged YF20');
+
+
+
+//////////////////////////////////////
+
+// sort by date for Greenpepper
+//different for blue vs red/green because red/green goes back further
+var LS_merge_sorted = LS_merged.sort("system:time_start");
+print(LS_merge_sorted, 'LS Merged Sorted');
+
+// sort by date for Boot Lake
+//different for blue vs red/green because red/green goes back further
+var LS_merge_sorted_boot = LS_merged_boot.sort("system:time_start");
+print(LS_merge_sorted_boot, 'LS Merged Sorted Boot');
+
+// sort by date for Canvasback Lake
+//different for blue vs red/green because red/green goes back further
+var LS_merge_sorted_Canvasback = LS_merged_Canvasback.sort("system:time_start");
+print(LS_merge_sorted_Canvasback, 'LS Merged Sorted Canvasback');
+
+// sort by date for Scoter Lake
+//different for blue vs red/green because red/green goes back further
+var LS_merge_sorted_Scoter = LS_merged_Scoter.sort("system:time_start");
+print(LS_merge_sorted_Scoter, 'LS Merged Sorted Scoter');
+
+// sort by date for YF17 Lake
+//different for blue vs red/green because red/green goes back further
+var LS_merge_sorted_YF17 = LS_merged_YF17.sort("system:time_start");
+print(LS_merge_sorted_YF17, 'LS Merged Sorted YF17');
+
+// sort by date for YF20 Lake
+//different for blue vs red/green because red/green goes back further
+var LS_merge_sorted_YF20 = LS_merged_YF20.sort("system:time_start");
+print(LS_merge_sorted_YF20, 'LS Merged Sorted YF20');
+
+// sort by date for Ninemile Lake
+//different for blue vs red/green because red/green goes back further
+var LS_merge_sorted_Ninemile = LS_merged_Ninemile.sort("system:time_start");
+print(LS_merge_sorted_Ninemile, 'LS Merged Sorted Ninemile');
+
+
+//////////////////////////////////
+
+//scaling for LS8 
+//Greenpepper
+var LS_merged_scaled_blue = LS_merge_sorted.map(L8collection_scaled_blue).map(maskSaturatedPixels_blue).map(maskNegativePixels_blue);
+print(LS_merged_scaled_blue, 'LS Merged Scaled Blue Greenpepper');
+
+var LS_merged_scaled_green = LS_merge_sorted.map(L8collection_scaled_green).map(maskSaturatedPixels_green).map(maskNegativePixels_green);
+
+var LS_merged_scaled_red = LS_merge_sorted.map(L8collection_scaled_red).map(maskSaturatedPixels_red).map(maskNegativePixels_red);
+
+var LS_merged_scaled_IR = LS_merge_sorted.map(L8collection_scaled_IR).map(maskSaturatedPixels_IR).map(maskNegativePixels_IR);
+
+
+//Boot
+var LS_merged_scaled_boot_blue = LS_merge_sorted_boot.map(L8collection_scaled_blue).map(maskSaturatedPixels_blue).map(maskNegativePixels_blue);
+
+var LS_merged_scaled_boot_green = LS_merge_sorted_boot.map(L8collection_scaled_green).map(maskSaturatedPixels_green).map(maskNegativePixels_green);
+
+var LS_merged_scaled_boot_red = LS_merge_sorted_boot.map(L8collection_scaled_red).map(maskSaturatedPixels_red).map(maskNegativePixels_red);
+
+var LS_merged_scaled_boot_IR = LS_merge_sorted_boot.map(L8collection_scaled_IR).map(maskSaturatedPixels_IR).map(maskNegativePixels_IR);
+
+//Canvasback
+var LS_merged_scaled_Canvasback_blue = LS_merge_sorted_Canvasback.map(L8collection_scaled_blue).map(maskSaturatedPixels_blue).map(maskNegativePixels_blue);
+
+var LS_merged_scaled_Canvasback_green = LS_merge_sorted_Canvasback.map(L8collection_scaled_green).map(maskSaturatedPixels_green).map(maskNegativePixels_green);
+
+var LS_merged_scaled_Canvasback_red = LS_merge_sorted_Canvasback.map(L8collection_scaled_red).map(maskSaturatedPixels_red).map(maskNegativePixels_red);
+
+var LS_merged_scaled_Canvasback_IR = LS_merge_sorted_Canvasback.map(L8collection_scaled_IR).map(maskSaturatedPixels_IR).map(maskNegativePixels_IR);
+
+//Scoter
+var LS_merged_scaled_Scoter_blue = LS_merge_sorted_Scoter.map(L8collection_scaled_blue).map(maskSaturatedPixels_blue).map(maskNegativePixels_blue);
+
+var LS_merged_scaled_Scoter_green = LS_merge_sorted_Scoter.map(L8collection_scaled_green).map(maskSaturatedPixels_green).map(maskNegativePixels_green);
+
+var LS_merged_scaled_Scoter_red = LS_merge_sorted_Scoter.map(L8collection_scaled_red).map(maskSaturatedPixels_red).map(maskNegativePixels_red);
+
+var LS_merged_scaled_Scoter_IR = LS_merge_sorted_Scoter.map(L8collection_scaled_IR).map(maskSaturatedPixels_IR).map(maskNegativePixels_IR);
+
+//YF17
+var LS_merged_scaled_YF17_blue = LS_merge_sorted_YF17.map(L8collection_scaled_blue).map(maskSaturatedPixels_blue).map(maskNegativePixels_blue);
+
+var LS_merged_scaled_YF17_green = LS_merge_sorted_YF17.map(L8collection_scaled_green).map(maskSaturatedPixels_green).map(maskNegativePixels_green);
+
+var LS_merged_scaled_YF17_red = LS_merge_sorted_YF17.map(L8collection_scaled_red).map(maskSaturatedPixels_red).map(maskNegativePixels_red);
+
+var LS_merged_scaled_YF17_IR = LS_merge_sorted_YF17.map(L8collection_scaled_IR).map(maskSaturatedPixels_IR).map(maskNegativePixels_IR);
+
+//YF20
+var LS_merged_scaled_YF20_blue = LS_merge_sorted_YF20.map(L8collection_scaled_blue).map(maskSaturatedPixels_blue).map(maskNegativePixels_blue);
+
+var LS_merged_scaled_YF20_green = LS_merge_sorted_YF20.map(L8collection_scaled_green).map(maskSaturatedPixels_green).map(maskNegativePixels_green);
+
+var LS_merged_scaled_YF20_red = LS_merge_sorted_YF20.map(L8collection_scaled_red).map(maskSaturatedPixels_red).map(maskNegativePixels_red);
+
+var LS_merged_scaled_YF20_IR = LS_merge_sorted_YF20.map(L8collection_scaled_IR).map(maskSaturatedPixels_IR).map(maskNegativePixels_IR);
+
+//Ninemile
+var LS_merged_scaled_Ninemile_blue = LS_merge_sorted_Ninemile.map(L8collection_scaled_blue).map(maskSaturatedPixels_blue).map(maskNegativePixels_blue);
+
+var LS_merged_scaled_Ninemile_green = LS_merge_sorted_Ninemile.map(L8collection_scaled_green).map(maskSaturatedPixels_green).map(maskNegativePixels_green);
+
+var LS_merged_scaled_Ninemile_red = LS_merge_sorted_Ninemile.map(L8collection_scaled_red).map(maskSaturatedPixels_red).map(maskNegativePixels_red);
+
+var LS_merged_scaled_Ninemile_IR = LS_merge_sorted_Ninemile.map(L8collection_scaled_IR).map(maskSaturatedPixels_IR).map(maskNegativePixels_IR);
+
+
+
+//////////////////////////////////
+/*
+//plotting LSmerged Greenpepper
+var chart_LSmerged_blue = ui.Chart.image.series({
+  imageCollection: LS_merged_scaled_blue,
+  region: GreenPepper,
+  reducer: ee.Reducer.median(),
+  scale: 30,
+});
+print(chart_LSmerged_blue, 'blue greenpepper');
+
+var chart_LSmerged_green = ui.Chart.image.series({
+  imageCollection: LS_merged_scaled_green,
+  region: GreenPepper,
+  reducer: ee.Reducer.median(),
+  scale: 30,
+});
+print(chart_LSmerged_green, 'green greenpepper');
+
+var chart_LSmerged_red = ui.Chart.image.series({
+  imageCollection: LS_merged_scaled_red,
+  region: GreenPepper,
+  reducer: ee.Reducer.median(),
+  scale: 30,
+});
+print(chart_LSmerged_red, 'red greenpepper');
+
+var chart_LSmerged_IR = ui.Chart.image.series({
+  imageCollection: LS_merged_scaled_IR,
+  region: GreenPepper,
+  reducer: ee.Reducer.median(),
+  scale: 30,
+});
+print(chart_LSmerged_IR, 'IR greenpepper');
+
+var chart_LSmerged_red = ui.Chart.image.series({
+  imageCollection: LS_merged_scaled_red,
+  region: GreenPepper,
+  reducer: ee.Reducer.count(),
+  scale: 30
+});
+print(chart_LSmerged_red, 'counts red Greenpepper');
+
+//plotting LSmerged Boot Lake
+
+// Pre-define some customization options.
+
+var chart_LSmerged_blue_boot = ui.Chart.image.series({
+  imageCollection: LS_merged_scaled_boot_blue,
+  region: Boot,
+  reducer: ee.Reducer.median(),
+  scale: 30,
+});
+print(chart_LSmerged_blue_boot, 'blue Boot');
+
+var chart_LSmerged_green_boot = ui.Chart.image.series({
+  imageCollection: LS_merged_scaled_boot_green,
+  region: Boot,
+  reducer: ee.Reducer.median(),
+  scale: 30,
+});
+print(chart_LSmerged_green_boot, 'green Boot');
+
+var chart_LSmerged_red_boot = ui.Chart.image.series({
+  imageCollection: LS_merged_scaled_boot_red,
+  region: Boot,
+  reducer: ee.Reducer.median(),
+  scale: 30,
+});
+print(chart_LSmerged_red_boot, 'red Boot');
+
+var chart_LSmerged_IR_boot = ui.Chart.image.series({
+  imageCollection: LS_merged_scaled_boot_IR,
+  region: Boot,
+  reducer: ee.Reducer.median(),
+  scale: 30,
+});
+print(chart_LSmerged_IR_boot, 'IR Boot');
+
+var chart_LSmerged_red_boot = ui.Chart.image.series({
+  imageCollection: LS_merged_scaled_boot_red,
+  region: Boot,
+  reducer: ee.Reducer.count(),
+  scale: 30
+});
+print(chart_LSmerged_red_boot, 'counts red Boot');
+
+//plotting LSmerged Canvasback Lake
+
+// Pre-define some customization options.
+
+var chart_LSmerged_blue_Canvasback = ui.Chart.image.series({
+  imageCollection: LS_merged_scaled_Canvasback_blue,
+  region: Canvasback,
+  reducer: ee.Reducer.median(),
+  scale: 30,
+});
+print(chart_LSmerged_blue_Canvasback, 'blue Canvasback');
+
+var chart_LSmerged_green_Canvasback = ui.Chart.image.series({
+  imageCollection: LS_merged_scaled_Canvasback_green,
+  region: Canvasback,
+  reducer: ee.Reducer.median(),
+  scale: 30,
+});
+print(chart_LSmerged_green_Canvasback, 'green Canvasback');
+
+var chart_LSmerged_red_Canvasback = ui.Chart.image.series({
+  imageCollection: LS_merged_scaled_Canvasback_red,
+  region: Canvasback,
+  reducer: ee.Reducer.median(),
+  scale: 30,
+});
+print(chart_LSmerged_red_Canvasback, 'red Canvasback');
+
+var chart_LSmerged_IR_Canvasback = ui.Chart.image.series({
+  imageCollection: LS_merged_scaled_Canvasback_IR,
+  region: Canvasback,
+  reducer: ee.Reducer.median(),
+  scale: 30,
+});
+print(chart_LSmerged_IR_Canvasback, 'IR Canvasback');
+
+var chart_LSmerged_red_Canvasback = ui.Chart.image.series({
+  imageCollection: LS_merged_scaled_Canvasback_red,
+  region: Canvasback,
+  reducer: ee.Reducer.count(),
+  scale: 30
+});
+print(chart_LSmerged_red_Canvasback, 'counts red Canvasback');
+
+//plotting LSmerged Scoter Lake
+
+// Pre-define some customization options.
+
+var chart_LSmerged_blue_Scoter = ui.Chart.image.series({
+  imageCollection: LS_merged_scaled_Scoter_blue,
+  region: Scoter,
+  reducer: ee.Reducer.median(),
+  scale: 30,
+});
+print(chart_LSmerged_blue_Scoter, 'blue Scoter');
+
+var chart_LSmerged_green_Scoter = ui.Chart.image.series({
+  imageCollection: LS_merged_scaled_Scoter_green,
+  region: Scoter,
+  reducer: ee.Reducer.median(),
+  scale: 30,
+});
+print(chart_LSmerged_green_Scoter, 'green Scoter');
+
+var chart_LSmerged_red_Scoter = ui.Chart.image.series({
+  imageCollection: LS_merged_scaled_Scoter_red,
+  region: Scoter,
+  reducer: ee.Reducer.median(),
+  scale: 30,
+});
+print(chart_LSmerged_red_Scoter, 'red Scoter');
+
+var chart_LSmerged_IR_Scoter = ui.Chart.image.series({
+  imageCollection: LS_merged_scaled_Scoter_IR,
+  region: Scoter,
+  reducer: ee.Reducer.median(),
+  scale: 30,
+});
+print(chart_LSmerged_IR_Scoter, 'IR Scoter');
+
+var chart_LSmerged_red_Scoter = ui.Chart.image.series({
+  imageCollection: LS_merged_scaled_Scoter_red,
+  region: Scoter,
+  reducer: ee.Reducer.count(),
+  scale: 30
+});
+print(chart_LSmerged_red_Scoter, 'counts red Scoter');
+
+//plotting LSmerged YF17 Lake
+
+// Pre-define some customization options.
+
+var chart_LSmerged_blue_YF17 = ui.Chart.image.series({
+  imageCollection: LS_merged_scaled_YF17_blue,
+  region: YF17,
+  reducer: ee.Reducer.median(),
+  scale: 30,
+});
+print(chart_LSmerged_blue_YF17, 'blue YF17');
+
+var chart_LSmerged_green_YF17 = ui.Chart.image.series({
+  imageCollection: LS_merged_scaled_YF17_green,
+  region: YF17,
+  reducer: ee.Reducer.median(),
+  scale: 30,
+});
+print(chart_LSmerged_green_YF17, 'green YF17');
+
+var chart_LSmerged_red_YF17 = ui.Chart.image.series({
+  imageCollection: LS_merged_scaled_YF17_red,
+  region: YF17,
+  reducer: ee.Reducer.median(),
+  scale: 30,
+});
+print(chart_LSmerged_red_YF17, 'red YF17');
+
+var chart_LSmerged_IR_YF17 = ui.Chart.image.series({
+  imageCollection: LS_merged_scaled_YF17_IR,
+  region: YF17,
+  reducer: ee.Reducer.median(),
+  scale: 30,
+});
+print(chart_LSmerged_IR_YF17, 'IR YF17');
+
+var chart_LSmerged_red_YF17 = ui.Chart.image.series({
+  imageCollection: LS_merged_scaled_YF17_red,
+  region: YF17,
+  reducer: ee.Reducer.count(),
+  scale: 30
+});
+print(chart_LSmerged_red_YF17, 'counts red YF17');
+
+//plotting LSmerged YF20 Lake
+
+// Pre-define some customization options.
+
+var chart_LSmerged_blue_YF20 = ui.Chart.image.series({
+  imageCollection: LS_merged_scaled_YF20_blue,
+  region: YF20,
+  reducer: ee.Reducer.median(),
+  scale: 30,
+});
+print(chart_LSmerged_blue_YF20, 'blue YF20');
+
+var chart_LSmerged_green_YF20 = ui.Chart.image.series({
+  imageCollection: LS_merged_scaled_YF20_green,
+  region: YF20,
+  reducer: ee.Reducer.median(),
+  scale: 30,
+});
+print(chart_LSmerged_green_YF20, 'green YF20');
+
+var chart_LSmerged_red_YF20 = ui.Chart.image.series({
+  imageCollection: LS_merged_scaled_YF20_red,
+  region: YF20,
+  reducer: ee.Reducer.median(),
+  scale: 30,
+});
+print(chart_LSmerged_red_YF20, 'red YF20');
+
+var chart_LSmerged_IR_YF20 = ui.Chart.image.series({
+  imageCollection: LS_merged_scaled_YF20_IR,
+  region: YF20,
+  reducer: ee.Reducer.median(),
+  scale: 30,
+});
+print(chart_LSmerged_IR_YF20, 'IR YF20');
+
+var chart_LSmerged_red_YF20 = ui.Chart.image.series({
+  imageCollection: LS_merged_scaled_YF20_red,
+  region: YF20,
+  reducer: ee.Reducer.count(),
+  scale: 30
+});
+print(chart_LSmerged_red_YF20, 'counts red YF20');
+
+//plotting LSmerged Ninemile Lake
+
+var chart_LSmerged_blue_Ninemile = ui.Chart.image.series({
+  imageCollection: LS_merged_scaled_Ninemile_blue,
+  region: Ninemile,
+  reducer: ee.Reducer.median(),
+  scale: 30,
+});
+print(chart_LSmerged_blue_Ninemile, 'blue Ninemile');*/
+
+var chart_LSmerged_green_Ninemile = ui.Chart.image.series({
+  imageCollection: LS_merged_scaled_Ninemile_green,
+  region: Ninemile,
+  reducer: ee.Reducer.median(),
+  scale: 30,
+});
+print(chart_LSmerged_green_Ninemile, 'green Ninemile');
+
+/*
+var chart_LSmerged_red_Ninemile = ui.Chart.image.series({
+  imageCollection: LS_merged_scaled_Ninemile_red,
+  region: Ninemile,
+  reducer: ee.Reducer.median(),
+  scale: 30
+});
+print(chart_LSmerged_red_Ninemile, 'red Ninemile');
+
+var chart_LSmerged_IR_Ninemile = ui.Chart.image.series({
+  imageCollection: LS_merged_scaled_Ninemile_IR,
+  region: Ninemile,
+  reducer: ee.Reducer.median(),
+  scale: 30
+});
+print(chart_LSmerged_IR_Ninemile, 'IR Ninemile');*/
+
+var chart_LSmerged_green_Ninemile = ui.Chart.image.series({
+  imageCollection: LS_merged_scaled_Ninemile_green,
+  region: Ninemile,
+  reducer: ee.Reducer.count(),
+  scale: 30
+});
+print(chart_LSmerged_green_Ninemile, 'counts green Ninemile');
+
+var chart_LSmerged_red_Ninemile = ui.Chart.image.series({
+  imageCollection: LS_merged_scaled_Ninemile_red,
+  region: Ninemile,
+  reducer: ee.Reducer.count(),
+  scale: 30
+});
+print(chart_LSmerged_red_Ninemile, 'counts red Ninemile');
