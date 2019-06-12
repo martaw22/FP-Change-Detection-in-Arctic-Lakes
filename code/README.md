@@ -26,8 +26,10 @@ Observable Notebook Links to Summary Figures:
 
 Annual Bar Chart Plot
 https://observablehq.com/@martaw22/bar-chart-of-pixel-counts-by-year
+
 Seasonal Bar Chart Plot
 https://observablehq.com/@martaw22/bar-chart-of-pixel-counts-by-season
+
 Overall Medians Per Lake for Each Band
 https://observablehq.com/@martaw22/summary-figure-median-for-all-lakes-normalized
 
