@@ -3,9 +3,9 @@
 This folder contains all the code used in Google Earth Engine as well as the exported timeseries files produced with Google Earth Engine and links to the Observable Notebooks embedded in our data visualization toolkit.
 
 
-timeseries_GEE.txt contains the Google Earth Engine code used to produce the median pixel values in each band for every lake.
-
-GoogleEarthEngineTimelapseVideoCode.txt contains the Google Earth Engine code use to make the timelapse videos.
+* timeseries_GEE.txt contains the Google Earth Engine code used to produce the median pixel values in each band for every lake.
+* GoogleEarthEngineTimelapseVideoCode.txt contains the Google Earth Engine code use to make the timelapse videos.
+* README.md is this document.
 
 
 # Links to the Observable Notebooks and Gist Files containing the data exported from Google Earth Engine:  
