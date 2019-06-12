@@ -23,6 +23,7 @@ https://observablehq.com/@martaw22/near-ir-band-canvasback-minus-yf20
 https://observablehq.com/@martaw22/blue-band-canvasback-minus-yf20/2
 
 Observable Notebook Links to Summary Figures: 
+
 Annual Bar Chart Plot
 https://observablehq.com/@martaw22/bar-chart-of-pixel-counts-by-year
 
