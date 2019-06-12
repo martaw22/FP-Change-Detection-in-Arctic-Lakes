@@ -7,6 +7,8 @@ Team members:
 
 Project page: https://cse512-19s.github.io/FP-Change-Detection-in-Arctic-Lakes/  
 
+**Note: Our application deliverable is embedded into our project page by scrolling down past the running instructions. Please use Chrome to view this page.**
+
 Modify or replace `index.html` in the `docs` folder to update your project page.
 
 ## Cloning the repository
@@ -15,13 +17,12 @@ Modify or replace `index.html` in the `docs` folder to update your project page.
 - Clone this repository.
 - From the root directory of this codebase, run `git lfs pull`.
 
-**Note: Our application deliverable is embedded into our project page by scrolling down past the running instructions. Please use Chrome to view this page.**
 
-__Breakdown of Group Member Contributions__
+## Breakdown of Group Member Contributions
 
 For this project, each team member was assigned a single area to research, develop, and implement. Paige Lavin took the lead on creating timelapse videos of all the case study lakes using Google Earth Engine. Marta Wolfshorndl took charge of producing time series charts of median pixel values for all of the case lake studies using Google Earth Engine and Observable Notebooks and D3, as well the summary figures, also made in Observable Notebooks and using D3. Carley Fredrickson handled the development of the project page and application toolkit using Javascript and HTML. Paige Lavin designed the poster and all group members contributed to writing the project paper and supporting documentation.
 
-__Project Process Commentary__
+## Project Process Commentary
 
 We started this project by meeting with our project sponsor and collaborator Catherine Kuhn. We wanted clarifications on what she needed as a deliverable from us, as well as what tools and data she wanted us to use. At this meeting, we learned about Google Earth Engine and what researchers in her area look for. After this meeting, we decided to divide our work based on individual areas of our project: the timelapse videos, the satellite channel pixel intensity time series plots, and the application design. Throughout the following weeks, we would touch base with each other on our progress, both through email and in person.
 
