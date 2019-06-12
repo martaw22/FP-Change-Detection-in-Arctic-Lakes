@@ -7,6 +7,8 @@ Team members:
 
 Project page: https://cse512-19s.github.io/FP-Change-Detection-in-Arctic-Lakes/  
 
+The code for the project page is located in the /docs folder.
+
 **Note: Our application deliverable is embedded into our project page by scrolling down past the running instructions. Please use Chrome to view this page.**
 
 
