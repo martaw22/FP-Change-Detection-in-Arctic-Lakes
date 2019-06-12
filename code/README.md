@@ -1,9 +1,14 @@
-This folder contains all the code used in Google Earth Engine
+# Documentation about our code and datasets
 
-Links to the Observable Notebooks and Gist Files containing the data exported from Google Earth Engine:
+This folder contains all the code used in Google Earth Engine as well as the exported timeseries files produced with Google Earth Engine and links to the Observable Notebooks embedded in our data visualization toolkit.
 
-Go to the link for each notebook to create a time series plot   
-To create time series plots for different lakes, change the gist file defined as 'data'  
+
+timeseries_GEE.txt contains the Google Earth Engine code used to produce the median pixel values in each band for every lake.
+
+GoogleEarthEngineTimelapseVideoCode.txt contains the Google Earth Engine code use to make the timelapse videos.
+
+
+# Links to the Observable Notebooks and Gist Files containing the data exported from Google Earth Engine:  
 
 Observable Notebook Links to Time Series Plots:
 https://observablehq.com/@martaw22/boot-lake-green-band-scatter-plot-with-median-line-with-circ
@@ -11,18 +16,13 @@ https://observablehq.com/@martaw22/boot-lake-ir-band-scatter-plot-with-median-li
 https://observablehq.com/@martaw22/boot-lake-red-band-scatter-plot-with-median-line-with-circle
 https://observablehq.com/@martaw22/boot-lake-blue-band-scatter-plot-with-median-line-with-circl
 
-
-To create difference plots between lakes, change the gist files defined as data and lake_2
-
 Observable Notebook Links to Difference Plots:
 https://observablehq.com/@martaw22/green-band-nineimile-minus-yf20
 https://observablehq.com/@martaw22/red-band-canvasback-minus-yf20
 https://observablehq.com/@martaw22/near-ir-band-canvasback-minus-yf20
 https://observablehq.com/@martaw22/blue-band-canvasback-minus-yf20/2
 
-
-Summary Figures  
-
+Observable Notebook Links to Summary Figures: 
 Annual Bar Chart Plot
 https://observablehq.com/@martaw22/bar-chart-of-pixel-counts-by-year
 
@@ -32,10 +32,7 @@ https://observablehq.com/@martaw22/bar-chart-of-pixel-counts-by-season
 Overall Medians Per Lake for Each Band
 https://observablehq.com/@martaw22/summary-figure-median-for-all-lakes-normalized
 
-
-
-
-Gist files of data bands from each lake:
+# Gist files of data bands from each lake:
 
 YF20 Lake:
 https://gist.githubusercontent.com/martaw22/8eeb3657d7173984f258040a1a7639e4/raw/677bd890117d5d4d629ea952e56a4d26159cd1dc/YF20_red_properdate.csv
