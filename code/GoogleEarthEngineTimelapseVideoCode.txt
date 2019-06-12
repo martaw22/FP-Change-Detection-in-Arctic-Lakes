@@ -1,0 +1,203 @@
+// This file is not directly executable. It must be run within the Google Earth Engine API
+// found at: https://code.earthengine.google.com/. This code will generate an mp4 video
+// file showing an annual timelapse from 1984-2018 for any lake of interest. The seven lakes
+// we used for this project are:
+// Boot Lake (centered at 66.07318, -146.27048)
+// Canvasback Lake (centered at 66.384025,-146.358557)
+// Greenpepper Lake (centered at 66.095279,-146.731136)
+// Ninemile Lake (centered at 66.185801,-146.660943)
+// Scoter Lake (centered at 66.235088,-146.411736)
+// Yukon Flats 17 (YF17) Lake (centered at 66.320636,-146.267024)
+// Yukon Flats 20 (YF20) Lake (centered at 66.637751,-145.774929).
+
+// Make sure to zoom into lake area before running code or else date will not print properly
+// on the exported video. Draw a rectangular polygon around lake and be sure to name the polygon
+// and vidname appropriately for the lake of interest, e.g. for Scoter Lake:
+var vidname = "scoter_video";
+var geometry = scoter;
+
+// Import desired Landsat images
+var l4 = ee.ImageCollection('LANDSAT/LT04/C01/T1_SR');
+var l5 = ee.ImageCollection('LANDSAT/LT05/C01/T1_SR');
+var l6 = ee.ImageCollection('LANDSAT/LE07/C01/T1_SR');
+var l7 = ee.ImageCollection('LANDSAT/LC08/C01/T1_SR');
+
+// Import code for annotating and animating video
+var text = require('users/gena/packages:text')
+var animation = require('users/gena/packages:animation')
+
+// define the time period
+var years = ee.List.sequence(1984,2018,1)
+print(years)
+
+// 
+var l4names = ee.List(["B1","B2","B3","B4"])
+var l5names = ee.List(["B1","B2","B3","B4"])
+var l7names = ee.List(["B1","B2","B3","B4"])
+var l8names = ee.List(["B1","B2","B3","B4"])
+ 
+// bands
+var l4Bands = ee.List(['blue','green','red','nir'])
+var l5Bands = ee.List(['blue','green','red','nir'])
+var l7Bands = ee.List(['blue','green','red','nir'])
+var l8Bands = ee.List(['blue','green','red','nir'])
+
+// Filter based on location
+var l4images  = l4.filterBounds(geometry)
+var l5images  = l5.filterBounds(geometry)
+var l7images  = l7.filterBounds(geometry)
+var l8images  = l8.filterBounds(geometry)
+
+// Functions
+//Cloud masking function from Catherine for LS8
+// create function to select only clear pixels
+var cloudMaskKuhnL8 = function(image){
+  // make a new single band image from the pixel qa band
+  var pixel_qa = image.select('pixel_qa'); 
+  // keep only clear pixels over land or water
+    return image.updateMask((pixel_qa.eq(324)).or(pixel_qa.eq(322))).copyProperties(image);   
+};
+
+//cloud masking functions from Catherine for LS5 and 7
+// create function to select only clear pixels
+var cloudMaskKuhnL57 = function(image){
+  // make a new single band image from the pixel qa band
+  var pixel_qa = image.select('pixel_qa'); 
+  // keep only clear pixels over land or water
+    return image.updateMask((pixel_qa.eq(68)).or(pixel_qa.eq(66))).copyProperties(image);   
+};
+
+// Harmonize LS8 with LS5 and LS7
+// Landsat 8 has a slightly different signal than L5 and 7, so this is a standard way to transform L8
+// to make it more comparable to L5 and L7
+// slope and intercept citation: Roy et al., 2016, Characterization of Landsat-7 to Landsat-8
+// reflective wavelength and normalized difference vegetation index continuity, Remote Sensing of
+// Environment, 185, 57-70.(http://dx.doi.org/10.1016/j.rse.2015.12.024); Table 2 - reduced major axis
+// (RMA) regression coefficients
+// harmonize oli to tm
+var oli2tm = function(oli) {
+  var slopes = ee.Image.constant([0.9785, 0.9542, 0.9825, 1.0073, 1.0171, 0.9949]);
+  var itcp = ee.Image.constant([-0.0095, -0.0016, -0.0022, -0.0021, -0.0030, 0.0029]);
+  var y = oli.select(['B2','B3','B4','B5','B6','B7'],['B1', 'B2', 'B3', 'B4', 'B5', 'B7'])
+             .resample('bicubic')
+             .subtract(itcp.multiply(10000)).divide(slopes)
+             .set('system:time_start', oli.get('system:time_start'))//;
+  var y_1 = y.toShort()
+  var y_2 = y_1.addBands(oli.select('pixel_qa')).addBands(oli.select('sr_aerosol'));
+  return y_2.copyProperties(oli);
+};
+
+//////////////////////////////////////////////////////////////////////////////
+
+
+// Apply masks
+//Transform L8 to make it more comparable to L5 and L7 
+//and mask clouds in LS8 data
+var l8_masked = l8images.map(cloudMaskKuhnL8).map(oli2tm);
+
+//Mask clouds in LS7 data
+var l7_masked = l7images.map(cloudMaskKuhnL57);
+//print(l7_masked, 'l7 masked');
+
+//Mask clouds in LS5 data
+var l5_masked = l5images.map(cloudMaskKuhnL57);
+//print(l5_masked, 'l5 masked');
+
+//Mask clouds in LS4 data
+var l4_masked = l4images.map(cloudMaskKuhnL57);
+//print(l4_masked, 'l4 masked');
+
+// Rename the bands
+l4_masked = l4_masked.select(l4names,l4Bands);
+l5_masked = l5_masked.select(l5names,l5Bands);
+l7_masked = l7_masked.select(l7names,l7Bands);
+l8_masked = l8_masked.select(l8names,l8Bands);
+
+// Combine all data in single collection
+var myCollection = ee.ImageCollection((l4_masked.merge(l5_masked)).merge(l7_masked).merge(l8_masked));
+print(myCollection, 'initial combine');
+
+// select rgb and scale by 0.0001
+var myCollection = myCollection.select(['red','green','blue']);
+var myCollection = myCollection.map(function(myCollection) {
+  return ee.Image(myCollection.multiply(0.0001).copyProperties(myCollection)).set('system:time_start', myCollection.get('system:time_start'));
+});
+
+//Visualize
+var vizParams = {min: 0.02, max: 0.09, forceRgbOutput: true}; //between 3sigma and 100% stretch
+var image = myCollection.first(); //should be ~between 0 to 2
+// Map.addLayer(image,vizParams,'image');
+//print(myCollection, 'next combine');
+
+// remove saturated and negative pixels
+var myCollection = myCollection.map(function(myCollection) {
+  return myCollection.updateMask((myCollection.lt(2))).updateMask((myCollection.gt(0))).copyProperties(myCollection); 
+});
+
+//Visualize 
+//var image2 = myCollection.first(); //now should definitely be between 0 to 2
+var image2 = myCollection.limit(1, 'system:time_start', false).first();
+//view last image by replace first() with .limit(1, 'system:time_start', false).first()
+//Map.addLayer(image2,vizParams,'image2');
+print(myCollection, 'final b4 yearlymap');
+
+// select bands to render
+myCollection = myCollection.select(['red','green','blue'])
+
+// create one map for each year
+var images = ee.ImageCollection(years.map(function (y) {
+  var annual_images = myCollection.filter(ee.Filter.calendarRange(y, y, 'year'))
+  
+  // count how many images fell within that year
+  var imageCount = annual_images.size()
+  
+  // compute mean, it will return an empty image if there are no images
+  var image = annual_images.median()
+  
+  // // count how many images fell within that year
+  // var imageCount = annual_images.toList(1).length();                                                            // get the number of images 
+
+  // // make a dummy collection and, if image count is 0, use it instead
+  // var dummyCollection = ee.ImageCollection([ee.Image([0,0,0]).rename(['red','green','blue']).mask(ee.Image(0))]); // make an image collection from an image with 6 bands all set to 0 and then make them masked value
+  // var finalCollection = ee.ImageCollection(ee.Algorithms.If(imageCount.gt(0), annual_images, dummyCollection)); // if the number of images in this year is 0, then use the dummy collection, otherwise use the SR collection
+
+  // var image = finalCollection.median();
+
+  // generate label property to be added as an annotation
+  var label = ee.Date.fromYMD(y, 1, 1).format('YYYY')
+    //.cat(' N=').cat(imageCount.format('%d'))
+
+  return image.visualize(vizParams)
+      .set('label', label)
+}));
+
+
+// show all labels
+print('labels', images.aggregate_array('label'))
+
+// annotate images
+var scale = Map.getScale() 
+
+var annotations = [{
+  position: 'top', offset: '5%', margin: '5%',
+  property: 'label',
+  scale: scale,
+  fontSize: 14
+}]
+
+images = images.map(function(i) { 
+  return text.annotateImage(i, {}, geometry, annotations).clip(geometry)
+})
+
+
+// export video to my drive
+Export.video.toDrive({
+  collection: images, 
+  description: vidname,
+  scale: 30,
+  framesPerSecond: 1,
+  region: geometry
+})
+
+// preview
+// animation.animate(images, { label: 'label' })
