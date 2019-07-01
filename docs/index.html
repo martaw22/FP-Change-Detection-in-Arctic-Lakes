@@ -4,13 +4,27 @@
   <title>CSE512 | FP Change Detection in Arctic Lakes</title>
 <meta charset=utf-8 />
 <meta name='viewport' content='initial-scale=1,maximum-scale=1,user-scalable=no' />
-  <script src="https://d3js.org/d3.v5.min.js"></script>
+
+<!-- EXTRA SCRIPTS AND STYLESHEETS NEEDED FOR THE WEBSITE -->
+<!-- D3 -->
+<script src="https://d3js.org/d3.v5.min.js"></script>
+
+<!-- Leaflet -->
 <script src='https://api.mapbox.com/mapbox.js/v3.2.0/mapbox.js'></script>
 <link href='https://api.mapbox.com/mapbox.js/v3.2.0/mapbox.css' rel='stylesheet' />
+
+<!-- Leaflet Zoom and Home Button -->
 <link rel="stylesheet" href="leaflet.zoomhome.css"/>
 <script src="leaflet.zoomhome.min.js"></script>
+
+<!-- MiniMap scripts for Leaflet -->
 <link rel="stylesheet" href="Control.MiniMap.css">
 <script src="Control.MiniMap.js" type="text/javascript"></script>
+<!-- END SCRIPTS -->
+
+
+
+<!-- START STYLE TAG -->
   <style media="all">
 * { padding: 0; margin: 0; }
  body {
@@ -80,9 +94,16 @@ input[type="radio"]{
 #resid3 { width: 597px; height: 165px; position: absolute; top:900px }
 #resid4 { width: 597px; height: 165px; position: absolute; left:600px;top:900px }
 }
-  </style>
+  </style> <!-- END STYLE TAG -->
 </head>
+
+
+
+<!-- WEBSITE BODY -->
 <body>
+
+
+<!-- CONTENT ADDED TO SATISFY PROJECT REQUIREMENTS -->
 <div class="content">
    <section class="title">
     <a href="/">Change Detection in Arctic Lakes with the NASA Arctic and Boreal Vulnerability Experiment (ABoVE) Project</a>
@@ -127,8 +148,11 @@ Many interesting processes can be seen in the videos such as:
     <a href="http://www.washington.edu">University of Washington</a>
   </div>
  </div>
+<!-- END CONTENT ADDED TO SATISFY PROJECT REQUIREMENTS -->
 
 
+
+<!-- SCRIPT TO ADD DATA SUMMARY IMAGES -->
 <script>
 var svg_sum_title = d3.select("body")
 	.append("svg")
@@ -170,12 +194,13 @@ svg_summary.append("image")
       .attr("x", 880)
       .attr("y", 0)
       .attr("height", 220)
+</script> <!-- END SCRIPT TO ADD DATA SUMMARY IMAGES -->
 
+<br>
+<br>
+<br>
 
-</script>
-<br>
-<br>
-<br>
+<!-- ADD THE TITLE AND SUBTITLE FOR THE LEAFLET MAP AND THE TIMESERIES CHARTS -->
 <script>
 var svg_title = d3.select("body")
       .append("svg")
@@ -202,10 +227,11 @@ svg_title.selectAll('text').style("font-family", "sans-serif");
     	.style("font-weight", 400)
 	    .style("font-size", 12)
     	.text("Intensity values range from 0 (no band saturation) to 1 (full band saturation)");
+</script> <!-- END TITLE AND SUBTITLE FOR THE LEAFLET MAP AND THE TIMESERIES CHARTS -->
 
 
-</script>
 
+<!-- ADD THE TITLE AND SUBTITLE FOR THE VIDEO PLAYER -->
 <div style="position:relative;" id="map-wrapper">
   <div id="map" style="height:296px; border:0; width:500px;"></div>
 <script>
@@ -234,13 +260,16 @@ svg_vidtitle.selectAll('text').style("font-family", "sans-serif");
     	  .style("font-weight", 400)
 	  .style("font-size", 12)
     	 .text("A black image indicates there were no good satellite images for the year");
-
-</script>
-
+</script> <!-- END TITLE AND SUBTITLE FOR THE VIDEO PLAYER -->
 </div>
-<script>
-    // Feel free to change or delete any of the code you see in this editor!
 
+
+
+<!-- ADD THE LEAFLET MAP AND THE LAKE PINS AND POPUP INFORMATION 
+NOTE: RIGHT NOW, EVERYTHING IS HARD-CODED IN. I RECOMMEND FINDING A WAY
+	  TO LOAD IN THIS INFORMATION FROM AN OUTSIDE FILE USING LOOPS.
+-->
+<script>
 var lakes = [
 		["Boot Lake",66.1,146.3,0.73,72,8.31,"bootlake"],
 		["Canvasback Lake",66.4,146.4,2.83,1.4,9.55,"canvasback"],
@@ -251,19 +280,22 @@ var lakes = [
 		["YF20",66.6,145.8,0.59,1.25,10.24,"yf20"],
 		];
 
+// LEAFLET MAP
  L.mapbox.accessToken = 'pk.eyJ1IjoibWFydGF3MjIiLCJhIjoiY2p3aW5jMmgxMDVpYjN6bjB1YTlrdnZxZSJ9.ah8AF2pYNbovJRcsba_STw';
 var map = L.mapbox.map('map')
     .setView([66.4, -146], 7)
     .addLayer(L.mapbox.styleLayer('mapbox://styles/mapbox/satellite-streets-v9'));
-
+	
+// REMOVE DEFAULT ZOOM CONTROL
 map.removeControl( map.zoomControl );
-
+// ADD PLUG-IN ZOOM CONTROL
 var zoomHome = L.Control.zoomHome();
 zoomHome.addTo(map);
-
+// ADD PLUG-IN MINI MAP
 var osm2 = new L.mapbox.styleLayer('mapbox://styles/mapbox/satellite-streets-v9', {minZoom: 2, maxZoom: 2});
 var miniMap = new L.Control.MiniMap(osm2).addTo(map);
 
+// LAKE PIN POPUPS
 var list1 = "Name: <b>" + lakes[0][0] + "</b><br>"
           + "Coordinates: "+lakes[0][1]+" <sup>o</sup>N, " +lakes[0][2]+" <sup>o</sup>W<br>"
 	     + "Area: "+ lakes[0][3] + " km<sup>2</sup>" + "<br>"
@@ -306,9 +338,7 @@ var list7 = "Name: <b>" + lakes[6][0] + "</b><br>"
 		+ "Depth: " + lakes[6][4] + " m" + "<br>"
 		+ "pH: " + lakes[6][5] + "<br>";
 
-
-
-
+// LAKE PIN LOCATIONS
 var marker_1 = L.marker([66.07318, -146.27]).addTo(map);
 marker_1.bindPopup(list1).openPopup();
 marker_1._icon.id = lakes[0][6];
@@ -331,8 +361,7 @@ marker_6._icon.id = lakes[5][6];
 var marker_7 = L.marker([66.637751, -145.775]).bindPopup(list7).addTo(map);
 marker_7._icon.id = lakes[6][6];
 
-
-
+// ADD FUNCTION TO LOAD CORRECT VIDEO ON LAKE PIN CLICK
 marker_1.on('click', function() {
 var video_test = document.getElementById('mainVideo');
 var source_test = document.getElementById('mainVideosrc');
@@ -381,48 +410,47 @@ var source_test = document.getElementById('mainVideosrc');
 source_test.setAttribute('src', 'videos/final_'+ lakes[6][6] +'.mp4');
 video_test.load();
 });
-
-
-
-
-
-  </script>
+</script> <!-- END LEAFLET MAP AND THE LAKE PINS AND POPUP INFORMATION -->
 </div>
 
 
+
+<!-- ADD THE VIDEO PLAYER -->
 <div style='position:relative'>
 <video width="500" height="291" controls id="mainVideo">
   <source src="videos/final_bootlake.mp4" type="video/mp4" id="mainVideosrc">
   Your browser does not support the video tag.
-</video>
+</video> <!-- END VIDEO PLAYER -->
 </div>
 
 
-<!-- TEMP SCRIPT GOES HERE -->
+
+<!-- ADD THE REACTIVE TIMESERIES CHARTS -->
 <div style='position:relative'>
 <div id='chart' style='height:165px; border:0; width:597px;'></div>
 <div id='chart2' style='height:165px; border:0; width:597px;'></div>
-<div id='chart3' style='height:165px; border:0; width:597px;'>
-</div>
-<div id='chart4' style='height:165px; border:0; width:597px;'>
-</div>
-</div>
+<div id='chart3' style='height:165px; border:0; width:597px;'></div>
+<div id='chart4' style='height:165px; border:0; width:597px;'></div>
+</div> <!-- END REACTIVE TIMESERIES CHARTS -->
   
 
 
-
+<!-- ADD MODULE SCRIPTS IMPORTING THE OBSERVABLE NOTEBOOK TIMESERIES CHARTS 
+NOTE: COULD BE IMPROVED BY MAKING ALL FOUR PLOTS IN ONE OBSERVABLE NOTEBOOK
+	  AND IMPORTING JUST THAT NOTEBOOK.
+-->
+<!-- MODULE SCRIPT #1: RED BAND -->
 <script type="module">
+// IMPORT FROM OBSERVABLE
 import {Runtime, Inspector} from "https://cdn.jsdelivr.net/npm/@observablehq/runtime@4/dist/runtime.js";
-
 import notebook from "https://api.observablehq.com/@martaw22/boot-lake-red-band-scatter-plot-with-median-line-with-circle.js?v=3";
-
 const main1 = new Runtime().module(notebook, name => {
   if (name === "chart") {
     return new Inspector(document.querySelector("#chart"));
   }
 });
 
-
+// WHEN A LAKE PIN IS CLICKED, REDEFINE THE DATASET TO BE PLOTTED
 document.getElementById(lakes[0][6]).addEventListener('click', function () { 
 main1.redefine("datalink","https://gist.githubusercontent.com/martaw22/ae9a43cdbea6e2ff08673364156944c2/raw/8de2f7b81a118432a13a9c0be27134aee743f2d2/red_boot.csv");
 }, false);
@@ -431,51 +459,41 @@ document.getElementById(lakes[1][6]).addEventListener('click', function () {
 main1.redefine("datalink","https://gist.githubusercontent.com/martaw22/2c8fb3455c5ee85d2a2fb4d6a2b18d7d/raw/8fea2666f01c2438afa1f8ee034c54c10a8aec4f/cb_red.csv");
 }, false);
 
-
 document.getElementById(lakes[2][6]).addEventListener('click', function () { 
 main1.redefine("datalink","https://gist.githubusercontent.com/martaw22/40eda6c39e84801d5ee9e2815b9ab93e/raw/b3b91a9f05836c8303755676e00b69db4dd7ee5d/red_gp.csv");
 }, false);
-
 
 document.getElementById(lakes[3][6]).addEventListener('click', function () { 
 main1.redefine("datalink","https://gist.githubusercontent.com/martaw22/b6bd5a343a8064dc2f213cd365cf00eb/raw/50754fa82bf0c2be9c663a11f45d9cc9ee5df5a9/nm_red.csv");
 }, false);
 
-
 document.getElementById(lakes[4][6]).addEventListener('click', function () { 
 main1.redefine("datalink","https://gist.githubusercontent.com/martaw22/463dadc1c3190ea73f6f3826786d31c4/raw/69ac7ea8f651be9692a39b67730e8c0bd3265821/scoter_red.csv");
 }, false);
-
 
 document.getElementById(lakes[5][6]).addEventListener('click', function () { 
 main1.redefine("datalink","https://gist.githubusercontent.com/martaw22/65b279be73d845e4b24095ba363e2bdc/raw/663e22eed7d920ec01f6a2b554571b5fa2e702e5/YF17_red.csv");
 }, false);
 
-
 document.getElementById(lakes[6][6]).addEventListener('click', function () { 
 main1.redefine("datalink","https://gist.githubusercontent.com/martaw22/8eeb3657d7173984f258040a1a7639e4/raw/677bd890117d5d4d629ea952e56a4d26159cd1dc/YF20_red_properdate.csv");
 }, false);
-
-
-</script>
-
+</script> <!-- END MODULE SCRIPT #1: RED BAND -->
 
 
 
-
-
+<!-- MODULE SCRIPT #2: GREEN BAND -->
 <script type="module">
+// IMPORT FROM OBSERVABLE
 import {Runtime, Inspector} from "https://cdn.jsdelivr.net/npm/@observablehq/runtime@4/dist/runtime.js";
-
 import notebook from "https://api.observablehq.com/@martaw22/boot-lake-green-band-scatter-plot-with-median-line-with-circ.js?v=3";
-
 const main2 = new Runtime().module(notebook, name => {
   if (name === "chart") {
     return new Inspector(document.querySelector("#chart2"));
   }
 });
 
-
+// WHEN A LAKE PIN IS CLICKED, REDEFINE THE DATASET TO BE PLOTTED
 document.getElementById(lakes[0][6]).addEventListener('click', function () { 
 main2.redefine("datalink","https://gist.githubusercontent.com/martaw22/191d95d0bc022609c3d9acbd07aa59f8/raw/af15eeb227b73d2d33d55c3e8cb2d32da87bb861/green_boot.csv");
 }, false);
@@ -484,48 +502,41 @@ document.getElementById(lakes[1][6]).addEventListener('click', function () {
 main2.redefine("datalink","https://gist.githubusercontent.com/martaw22/fdab12799cbbc810dbb19480e7bb2f12/raw/9c9d158ab3766f7448bff2b7204ce229a46c1349/cb_green.csv");
 }, false);
 
-
 document.getElementById(lakes[2][6]).addEventListener('click', function () { 
 main2.redefine("datalink","https://gist.githubusercontent.com/martaw22/82859283beb7628c352cbc003079038d/raw/82fe919b6a4a6f312320adcf57e0fa1f3381e8d5/green_gp.csv");
 }, false);
-
 
 document.getElementById(lakes[3][6]).addEventListener('click', function () { 
 main2.redefine("datalink","https://gist.githubusercontent.com/martaw22/7848fa15158af69bb51f09fc5dc24e2d/raw/4ccda782ab0535fa02a8cf4906fd832a891de10c/nm_green.csv");
 }, false);
 
-
 document.getElementById(lakes[4][6]).addEventListener('click', function () { 
 main2.redefine("datalink","https://gist.githubusercontent.com/martaw22/d02c980e774cf589e207b4fc652168c9/raw/b7ba24dca047e013a2cd85297a4d6d79f2d17da6/scoter_green.csv");
 }, false);
-
 
 document.getElementById(lakes[5][6]).addEventListener('click', function () { 
 main2.redefine("datalink","https://gist.githubusercontent.com/martaw22/9c7511bafa6801c4b3292a6e2ed88f6c/raw/67372a23548e135110d949f4f7a953939f2f2a79/YF17_green.csv");
 }, false);
 
-
 document.getElementById(lakes[6][6]).addEventListener('click', function () { 
 main2.redefine("datalink","https://gist.githubusercontent.com/martaw22/937669e406e7949d2362863dee1fd124/raw/13bd851ce6aae3fdbad009aa0b8a92ebdcb5e807/YF20_green.csv");
 }, false);
-
-</script>
-
+</script> <!-- END MODULE SCRIPT #2: GREEN BAND -->
 
 
 
-
+<!-- MODULE SCRIPT #3: BLUE BAND -->
 <script type="module">
+// IMPORT FROM OBSERVABLE
 import {Runtime, Inspector} from "https://cdn.jsdelivr.net/npm/@observablehq/runtime@4/dist/runtime.js";
-
 import notebook from "https://api.observablehq.com/@martaw22/boot-lake-blue-band-scatter-plot-with-median-line-with-circl.js?v=3";
-
 const main3 = new Runtime().module(notebook, name => {
   if (name === "chart") {
     return new Inspector(document.querySelector("#chart3"));
   }
 });
 
+// WHEN A LAKE PIN IS CLICKED, REDEFINE THE DATASET TO BE PLOTTED
 document.getElementById(lakes[0][6]).addEventListener('click', function () { 
 main3.redefine("datalink","https://gist.githubusercontent.com/martaw22/845f22a1204820cfa609377c4141734c/raw/a7819e253c38671a09f1b107d3544d68af66102d/blue_boot.csv");
 }, false);
@@ -534,46 +545,41 @@ document.getElementById(lakes[1][6]).addEventListener('click', function () {
 main3.redefine("datalink","https://gist.githubusercontent.com/martaw22/bdda4f2c613846b9023fbf08fbcb38c9/raw/1c76b2686981873dae91181b286107951c7ad075/cb_blue.csv");
 }, false);
 
-
 document.getElementById(lakes[2][6]).addEventListener('click', function () { 
 main3.redefine("datalink","https://gist.githubusercontent.com/martaw22/ddf9f88527fd17515ef367088bf68c48/raw/30bdd7eb84d8209cab45980c9758bf947933c41c/blue_gp.csv");
 }, false);
-
 
 document.getElementById(lakes[3][6]).addEventListener('click', function () { 
 main3.redefine("datalink","https://gist.githubusercontent.com/martaw22/bbe4d2a6817bba8b3d9071e1310d1fad/raw/b69fa3f7bd4063e0af6059bc34091a3a3afe55bc/nm_blue.csv");
 }, false);
 
-
 document.getElementById(lakes[4][6]).addEventListener('click', function () { 
 main3.redefine("datalink","https://gist.githubusercontent.com/martaw22/2c39e70b196925130c9c600692f78eac/raw/88fee8e9d1273e82f7faac579b5528d21c972ddd/scoter_blue.csv");
 }, false);
-
 
 document.getElementById(lakes[5][6]).addEventListener('click', function () { 
 main3.redefine("datalink","https://gist.githubusercontent.com/martaw22/abb577c9e2b864f22d8f9136c93063e0/raw/a99c8ffb75c8b4f3bd4e4d68886259d503694bf7/YF17_blue.csv");
 }, false);
 
-
 document.getElementById(lakes[6][6]).addEventListener('click', function () { 
 main3.redefine("datalink","https://gist.githubusercontent.com/martaw22/be9c0fb2823026d98fabe29e0f962e12/raw/8e8d1bb3a1d65f0e97ca730a545d7367dfa2996c/YF20_blue.csv");
 }, false);
-
-</script>
-
+</script> <!-- END MODULE SCRIPT #3: BLUE BAND -->
 
 
+
+<!-- MODULE SCRIPT #4: IR BAND -->
 <script type="module">
+// IMPORT FROM OBSERVABLE
 import {Runtime, Inspector} from "https://cdn.jsdelivr.net/npm/@observablehq/runtime@4/dist/runtime.js";
-
 import notebook from "https://api.observablehq.com/@martaw22/boot-lake-ir-band-scatter-plot-with-median-line-with-circles.js?v=3";
-
 const main4 = new Runtime().module(notebook, name => {
   if (name === "chart") {
     return new Inspector(document.querySelector("#chart4"));
   }
 });
 
+// WHEN A LAKE PIN IS CLICKED, REDEFINE THE DATASET TO BE PLOTTED
 document.getElementById(lakes[0][6]).addEventListener('click', function () { 
 main4.redefine("datalink","https://gist.githubusercontent.com/martaw22/f618fefdf4b9c3d27d6015950cd52821/raw/94aefb9f11ff8bbd2635df5c6fa0e09e5c218221/IR_boot.csv");
 }, false);
@@ -582,34 +588,30 @@ document.getElementById(lakes[1][6]).addEventListener('click', function () {
 main4.redefine("datalink","https://gist.githubusercontent.com/martaw22/f6845b70891d4ff42c6ee06775018ef0/raw/d4516b8b741a78726cfe8a61c8341ebec7f12a56/cb_IR.csv");
 }, false);
 
-
 document.getElementById(lakes[2][6]).addEventListener('click', function () { 
 main4.redefine("datalink","https://gist.githubusercontent.com/martaw22/d94ee343a9df2821ce21dfece1b5854f/raw/5e33c04172b5145b21200c407e824798c5b87b34/IR_gp.csv");
 }, false);
-
 
 document.getElementById(lakes[3][6]).addEventListener('click', function () { 
 main4.redefine("datalink","https://gist.githubusercontent.com/martaw22/75716129b3688575d6696162e375615a/raw/4b84456c79b1af5285897efd2a6215caee043b9d/nm_IR.csv");
 }, false);
 
-
 document.getElementById(lakes[4][6]).addEventListener('click', function () { 
 main4.redefine("datalink","https://gist.githubusercontent.com/martaw22/d2d5dac6d0f1b72afbe9126fa1aa4129/raw/8393884acca0e7ea1037c1f3c6019fd9ba6caa2d/scoter_IR.csv");
 }, false);
-
 
 document.getElementById(lakes[5][6]).addEventListener('click', function () { 
 main4.redefine("datalink","https://gist.githubusercontent.com/martaw22/ef192af3ec965141fc77965637eeb4aa/raw/45fd935ffcc7ded62a46ad6d5f0302ad4b6e6ebe/YF17_IR.csv");
 }, false);
 
-
 document.getElementById(lakes[6][6]).addEventListener('click', function () { 
 main4.redefine("datalink","https://gist.githubusercontent.com/martaw22/b4aa6f397cb326b73c769de5da19e1bb/raw/5c653cc95bd46adf9aa8ae1d2e1f75936fea27fb/YF20_IR.csv");
 }, false);
+</script> <!-- END MODULE SCRIPT #4: IR BAND -->
 
-</script>
 
 
+<!-- ADD TITLE FOR COMPARISON CHART RADIO BUTTONS -->
 <div style='position:relative'>
 <script>
 var svg_radio = d3.select("body")
@@ -625,8 +627,13 @@ svg_radio.selectAll('text').style("font-family", "sans-serif");
     	.style("font-weight", 700)
 	.style("font-size", 20)
     	.text("Choose another lake to see how it differs from the lake selected on the map (Lake #1 - Lake #2)");
+</script> <!-- END TITLE FOR COMPARISON CHART RADIO BUTTONS -->
 
-</script>
+
+
+<!-- ADD COMPARISON CHART RADIO BUTTONS 
+NOTE: A FOR LOOP SHOULD BE ADDED HERE SIMILAR TO IN THE MAP ABOVE. 
+-->
 <form style="position:absolute;top:660px">
   <input type="radio" name="lake" value="bootlake" id="BL"> Boot Lake
   <input type="radio" name="lake" value="canvasback" id="CBL"> Canvasback Lake
@@ -635,256 +642,238 @@ svg_radio.selectAll('text').style("font-family", "sans-serif");
   <input type="radio" name="lake" value="scoter" id="SL"> Scoter Lake
   <input type="radio" name="lake" value="yf17" id="YF17L"> YF17
   <input type="radio" name="lake" value="yf20" id="YF20L" checked> YF20
-</form> 
+</form> <!-- END COMPARISON CHART RADIO BUTTONS -->
 </div>
 
+
+
+<!-- ADD REACTIVE RESIDUALS CHARTS -->
 <div style='position:relative'>
-<div id='resid1' style='height:165px; border:0; width:597px;'>
-</div>
+<div id='resid1' style='height:165px; border:0; width:597px;'></div>
 <div id='resid2' style='height:165px; border:0; width:597px;'></div>
 <div id='resid3' style='height:165px; border:0; width:597px;'></div>
 <div id='resid4' style='height:165px; border:0; width:597px;'></div>
-</div>
+</div> <!-- END REACTIVE RESIDUALS CHARTS -->
 
 
+
+<!-- ADD MODULE SCRIPTS IMPORTING THE OBSERVABLE NOTEBOOK RESIDUALS CHARTS
+NOTE: COULD BE IMPROVED BY MAKING ALL FOUR PLOTS IN ONE OBSERVABLE NOTEBOOK
+	  AND IMPORTING JUST THAT NOTEBOOK.
+-->
+<!-- MODULE SCRIPT #1: GREEN BAND RESIDUAL -->
 <script type="module">
+// IMPORT FROM OBSERVABLE
 import {Runtime, Inspector} from "https://cdn.jsdelivr.net/npm/@observablehq/runtime@4/dist/runtime.js";
-
 import notebook from "https://api.observablehq.com/@martaw22/green-band-nineimile-minus-yf20.js?v=3";
-
 const resid2 = new Runtime().module(notebook, name => {
   if (name === "chart") {
     return new Inspector(document.querySelector("#resid2"));
   }
 });
 
-// LAKE 1
+// LAKE 1: MAP PIN CLICK AND RADIO BUTTON CLICK
 document.getElementById(lakes[0][6]).addEventListener('click', function () { 
 resid2.redefine("data_link1","https://gist.githubusercontent.com/martaw22/191d95d0bc022609c3d9acbd07aa59f8/raw/af15eeb227b73d2d33d55c3e8cb2d32da87bb861/green_boot.csv");
 }, false);
-
 document.getElementById("BL").addEventListener('click', function () { 
 resid2.redefine("data_link2", "https://gist.githubusercontent.com/martaw22/191d95d0bc022609c3d9acbd07aa59f8/raw/af15eeb227b73d2d33d55c3e8cb2d32da87bb861/green_boot.csv");
 }, false);
 
-// LAKE 2
+// LAKE 2: MAP PIN CLICK AND RADIO BUTTON CLICK
 document.getElementById(lakes[1][6]).addEventListener('click', function () { 
 resid2.redefine("data_link1","https://gist.githubusercontent.com/martaw22/fdab12799cbbc810dbb19480e7bb2f12/raw/9c9d158ab3766f7448bff2b7204ce229a46c1349/cb_green.csv");
 }, false);
-
 document.getElementById("CBL").addEventListener('click', function () { 
 resid2.redefine("data_link2","https://gist.githubusercontent.com/martaw22/fdab12799cbbc810dbb19480e7bb2f12/raw/9c9d158ab3766f7448bff2b7204ce229a46c1349/cb_green.csv");
 }, false);
 
-// LAKE 3
+// LAKE 3: MAP PIN CLICK AND RADIO BUTTON CLICK
 document.getElementById(lakes[2][6]).addEventListener('click', function () { 
 resid2.redefine("data_link1","https://gist.githubusercontent.com/martaw22/82859283beb7628c352cbc003079038d/raw/82fe919b6a4a6f312320adcf57e0fa1f3381e8d5/green_gp.csv");
 }, false);
-
 document.getElementById("GPL").addEventListener('click', function () { 
 resid2.redefine("data_link2","https://gist.githubusercontent.com/martaw22/82859283beb7628c352cbc003079038d/raw/82fe919b6a4a6f312320adcf57e0fa1f3381e8d5/green_gp.csv");
 }, false);
 
-// LAKE 4
+// LAKE 4: MAP PIN CLICK AND RADIO BUTTON CLICK
 document.getElementById(lakes[3][6]).addEventListener('click', function () { 
 resid2.redefine("data_link1","https://gist.githubusercontent.com/martaw22/7848fa15158af69bb51f09fc5dc24e2d/raw/4ccda782ab0535fa02a8cf4906fd832a891de10c/nm_green.csv");
 }, false);
-
 document.getElementById("NML").addEventListener('click', function () { 
 resid2.redefine("data_link2","https://gist.githubusercontent.com/martaw22/7848fa15158af69bb51f09fc5dc24e2d/raw/4ccda782ab0535fa02a8cf4906fd832a891de10c/nm_green.csv");
 }, false);
 
-// LAKE 5
+// LAKE 5: MAP PIN CLICK AND RADIO BUTTON CLICK
 document.getElementById(lakes[4][6]).addEventListener('click', function () { 
 resid2.redefine("data_link1","https://gist.githubusercontent.com/martaw22/d02c980e774cf589e207b4fc652168c9/raw/b7ba24dca047e013a2cd85297a4d6d79f2d17da6/scoter_green.csv");
 }, false);
-
 document.getElementById("SL").addEventListener('click', function () { 
 resid2.redefine("data_link2","https://gist.githubusercontent.com/martaw22/d02c980e774cf589e207b4fc652168c9/raw/b7ba24dca047e013a2cd85297a4d6d79f2d17da6/scoter_green.csv");
 }, false);
 
-// LAKE 6
+// LAKE 6: MAP PIN CLICK AND RADIO BUTTON CLICK
 document.getElementById(lakes[5][6]).addEventListener('click', function () { 
 resid2.redefine("data_link1","https://gist.githubusercontent.com/martaw22/9c7511bafa6801c4b3292a6e2ed88f6c/raw/67372a23548e135110d949f4f7a953939f2f2a79/YF17_green.csv");
 }, false);
-
 document.getElementById("YF17L").addEventListener('click', function () { 
 resid2.redefine("data_link2","https://gist.githubusercontent.com/martaw22/9c7511bafa6801c4b3292a6e2ed88f6c/raw/67372a23548e135110d949f4f7a953939f2f2a79/YF17_green.csv");
 }, false);
 
-// LAKE 7
+// LAKE 7: MAP PIN CLICK AND RADIO BUTTON CLICK
 document.getElementById(lakes[6][6]).addEventListener('click', function () { 
 resid2.redefine("data_link1","https://gist.githubusercontent.com/martaw22/937669e406e7949d2362863dee1fd124/raw/13bd851ce6aae3fdbad009aa0b8a92ebdcb5e807/YF20_green.csv");
 }, false);
-
 document.getElementById("YF20L").addEventListener('click', function () { 
 resid2.redefine("data_link2","https://gist.githubusercontent.com/martaw22/937669e406e7949d2362863dee1fd124/raw/13bd851ce6aae3fdbad009aa0b8a92ebdcb5e807/YF20_green.csv");
 }, false);
-
-</script>
-
+</script> <!-- END MODULE SCRIPT #1: RED BAND RESIDUAL -->
 
 
 
+<!-- MODULE SCRIPT #2: RED BAND RESIDUAL -->
 <script type="module">
+// IMPORT FROM OBSERVABLE
 import {Runtime, Inspector} from "https://cdn.jsdelivr.net/npm/@observablehq/runtime@4/dist/runtime.js";
-
 import notebook from "https://api.observablehq.com/@martaw22/red-band-canvasback-minus-yf20.js?v=3";
-
 const resid1 = new Runtime().module(notebook, name => {
   if (name === "chart") {
     return new Inspector(document.querySelector("#resid1"));
   }
 });
 
-// LAKE 1
+// LAKE 1: MAP PIN CLICK AND RADIO BUTTON CLICK
 document.getElementById(lakes[0][6]).addEventListener('click', function () { 
 resid1.redefine("data_link1","https://gist.githubusercontent.com/martaw22/ae9a43cdbea6e2ff08673364156944c2/raw/8de2f7b81a118432a13a9c0be27134aee743f2d2/red_boot.csv");
 }, false);
-
 document.getElementById("BL").addEventListener('click', function () { 
 resid1.redefine("data_link2", "https://gist.githubusercontent.com/martaw22/ae9a43cdbea6e2ff08673364156944c2/raw/8de2f7b81a118432a13a9c0be27134aee743f2d2/red_boot.csv");
 }, false);
 
-// LAKE 2
+// LAKE 2: MAP PIN CLICK AND RADIO BUTTON CLICK
 document.getElementById(lakes[1][6]).addEventListener('click', function () { 
 resid1.redefine("data_link1","https://gist.githubusercontent.com/martaw22/2c8fb3455c5ee85d2a2fb4d6a2b18d7d/raw/8fea2666f01c2438afa1f8ee034c54c10a8aec4f/cb_red.csv");
 }, false);
-
 document.getElementById("CBL").addEventListener('click', function () { 
 resid1.redefine("data_link2","https://gist.githubusercontent.com/martaw22/2c8fb3455c5ee85d2a2fb4d6a2b18d7d/raw/8fea2666f01c2438afa1f8ee034c54c10a8aec4f/cb_red.csv");
 }, false);
 
-// LAKE 3
+// LAKE 3: MAP PIN CLICK AND RADIO BUTTON CLICK
 document.getElementById(lakes[2][6]).addEventListener('click', function () { 
 resid1.redefine("data_link1","https://gist.githubusercontent.com/martaw22/40eda6c39e84801d5ee9e2815b9ab93e/raw/b3b91a9f05836c8303755676e00b69db4dd7ee5d/red_gp.csv");
 }, false);
-
 document.getElementById("GPL").addEventListener('click', function () { 
 resid1.redefine("data_link2","https://gist.githubusercontent.com/martaw22/40eda6c39e84801d5ee9e2815b9ab93e/raw/b3b91a9f05836c8303755676e00b69db4dd7ee5d/red_gp.csv");
 }, false);
 
-// LAKE 4
+// LAKE 4: MAP PIN CLICK AND RADIO BUTTON CLICK
 document.getElementById(lakes[3][6]).addEventListener('click', function () { 
 resid1.redefine("data_link1","https://gist.githubusercontent.com/martaw22/b6bd5a343a8064dc2f213cd365cf00eb/raw/50754fa82bf0c2be9c663a11f45d9cc9ee5df5a9/nm_red.csv");
 }, false);
-
 document.getElementById("NML").addEventListener('click', function () { 
 resid1.redefine("data_link2","https://gist.githubusercontent.com/martaw22/b6bd5a343a8064dc2f213cd365cf00eb/raw/50754fa82bf0c2be9c663a11f45d9cc9ee5df5a9/nm_red.csv");
 }, false);
 
-// LAKE 5
+// LAKE 5: MAP PIN CLICK AND RADIO BUTTON CLICK
 document.getElementById(lakes[4][6]).addEventListener('click', function () { 
 resid1.redefine("data_link1","https://gist.githubusercontent.com/martaw22/463dadc1c3190ea73f6f3826786d31c4/raw/69ac7ea8f651be9692a39b67730e8c0bd3265821/scoter_red.csv");
 }, false);
-
 document.getElementById("SL").addEventListener('click', function () { 
 resid1.redefine("data_link2","https://gist.githubusercontent.com/martaw22/463dadc1c3190ea73f6f3826786d31c4/raw/69ac7ea8f651be9692a39b67730e8c0bd3265821/scoter_red.csv");
 }, false);
 
-// LAKE 6
+// LAKE 6: MAP PIN CLICK AND RADIO BUTTON CLICK
 document.getElementById(lakes[5][6]).addEventListener('click', function () { 
 resid1.redefine("data_link1","https://gist.githubusercontent.com/martaw22/65b279be73d845e4b24095ba363e2bdc/raw/663e22eed7d920ec01f6a2b554571b5fa2e702e5/YF17_red.csv");
 }, false);
-
 document.getElementById("YF17L").addEventListener('click', function () { 
 resid1.redefine("data_link2","https://gist.githubusercontent.com/martaw22/65b279be73d845e4b24095ba363e2bdc/raw/663e22eed7d920ec01f6a2b554571b5fa2e702e5/YF17_red.csv");
 }, false);
 
-// LAKE 7
+// LAKE 7: MAP PIN CLICK AND RADIO BUTTON CLICK
 document.getElementById(lakes[6][6]).addEventListener('click', function () { 
 resid1.redefine("data_link1","https://gist.githubusercontent.com/martaw22/8eeb3657d7173984f258040a1a7639e4/raw/677bd890117d5d4d629ea952e56a4d26159cd1dc/YF20_red_properdate.csv");
 }, false);
-
 document.getElementById("YF20L").addEventListener('click', function () { 
 resid1.redefine("data_link2","https://gist.githubusercontent.com/martaw22/8eeb3657d7173984f258040a1a7639e4/raw/677bd890117d5d4d629ea952e56a4d26159cd1dc/YF20_red_properdate.csv");
 }, false);
-
-</script>
-
+</script> <!-- END MODULE SCRIPT #2: RED BAND RESIDUAL -->
 
 
 
+<!-- MODULE SCRIPT #3: BLUE BAND RESIDUAL -->
 <script type="module">
+// IMPORT FROM OBSERVABLE
 import {Runtime, Inspector} from "https://cdn.jsdelivr.net/npm/@observablehq/runtime@4/dist/runtime.js";
-
 import notebook from "https://api.observablehq.com/@martaw22/blue-band-canvasback-minus-yf20.js?v=3";
-
 const resid3 = new Runtime().module(notebook, name => {
   if (name === "chart") {
     return new Inspector(document.querySelector("#resid3"));
   }
 });
 
-// LAKE 1
+// LAKE 1: MAP PIN CLICK AND RADIO BUTTON CLICK
 document.getElementById(lakes[0][6]).addEventListener('click', function () { 
 resid3.redefine("data_link1","https://gist.githubusercontent.com/martaw22/845f22a1204820cfa609377c4141734c/raw/a7819e253c38671a09f1b107d3544d68af66102d/blue_boot.csv");
 }, false);
-
 document.getElementById("BL").addEventListener('click', function () { 
 resid3.redefine("data_link2", "https://gist.githubusercontent.com/martaw22/845f22a1204820cfa609377c4141734c/raw/a7819e253c38671a09f1b107d3544d68af66102d/blue_boot.csv");
 }, false);
 
-// LAKE 2
+// LAKE 2: MAP PIN CLICK AND RADIO BUTTON CLICK
 document.getElementById(lakes[1][6]).addEventListener('click', function () { 
 resid3.redefine("data_link1","https://gist.githubusercontent.com/martaw22/bdda4f2c613846b9023fbf08fbcb38c9/raw/1c76b2686981873dae91181b286107951c7ad075/cb_blue.csv");
 }, false);
-
 document.getElementById("CBL").addEventListener('click', function () { 
 resid3.redefine("data_link2","https://gist.githubusercontent.com/martaw22/bdda4f2c613846b9023fbf08fbcb38c9/raw/1c76b2686981873dae91181b286107951c7ad075/cb_blue.csv");
 }, false);
 
-// LAKE 3
+// LAKE 3: MAP PIN CLICK AND RADIO BUTTON CLICK
 document.getElementById(lakes[2][6]).addEventListener('click', function () { 
 resid3.redefine("data_link1","https://gist.githubusercontent.com/martaw22/d94ee343a9df2821ce21dfece1b5854f/raw/5e33c04172b5145b21200c407e824798c5b87b34/IR_gp.csv");
 }, false);
-
 document.getElementById("GPL").addEventListener('click', function () { 
 resid3.redefine("data_link2","https://gist.githubusercontent.com/martaw22/d94ee343a9df2821ce21dfece1b5854f/raw/5e33c04172b5145b21200c407e824798c5b87b34/IR_gp.csv");
 }, false);
 
-// LAKE 4
+// LAKE 4: MAP PIN CLICK AND RADIO BUTTON CLICK
 document.getElementById(lakes[3][6]).addEventListener('click', function () { 
 resid3.redefine("data_link1","https://gist.githubusercontent.com/martaw22/75716129b3688575d6696162e375615a/raw/4b84456c79b1af5285897efd2a6215caee043b9d/nm_IR.csv");
 }, false);
-
 document.getElementById("NML").addEventListener('click', function () { 
 resid3.redefine("data_link2","https://gist.githubusercontent.com/martaw22/75716129b3688575d6696162e375615a/raw/4b84456c79b1af5285897efd2a6215caee043b9d/nm_IR.csv");
 }, false);
 
-// LAKE 5
+// LAKE 5: MAP PIN CLICK AND RADIO BUTTON CLICK
 document.getElementById(lakes[4][6]).addEventListener('click', function () { 
 resid3.redefine("data_link1","https://gist.githubusercontent.com/martaw22/2c39e70b196925130c9c600692f78eac/raw/88fee8e9d1273e82f7faac579b5528d21c972ddd/scoter_blue.csv");
 }, false);
-
 document.getElementById("SL").addEventListener('click', function () { 
 resid3.redefine("data_link2","https://gist.githubusercontent.com/martaw22/2c39e70b196925130c9c600692f78eac/raw/88fee8e9d1273e82f7faac579b5528d21c972ddd/scoter_blue.csv");
 }, false);
 
-// LAKE 6
+// LAKE 6: MAP PIN CLICK AND RADIO BUTTON CLICK
 document.getElementById(lakes[5][6]).addEventListener('click', function () { 
 resid3.redefine("data_link1","https://gist.githubusercontent.com/martaw22/abb577c9e2b864f22d8f9136c93063e0/raw/a99c8ffb75c8b4f3bd4e4d68886259d503694bf7/YF17_blue.csv");
 }, false);
-
 document.getElementById("YF17L").addEventListener('click', function () { 
 resid3.redefine("data_link2","https://gist.githubusercontent.com/martaw22/abb577c9e2b864f22d8f9136c93063e0/raw/a99c8ffb75c8b4f3bd4e4d68886259d503694bf7/YF17_blue.csv");
 }, false);
 
-// LAKE 7
+// LAKE 7: MAP PIN CLICK AND RADIO BUTTON CLICK
 document.getElementById(lakes[6][6]).addEventListener('click', function () { 
 resid3.redefine("data_link1","https://gist.githubusercontent.com/martaw22/be9c0fb2823026d98fabe29e0f962e12/raw/8e8d1bb3a1d65f0e97ca730a545d7367dfa2996c/YF20_blue.csv");
 }, false);
-
 document.getElementById("YF20L").addEventListener('click', function () { 
 resid3.redefine("data_link2","https://gist.githubusercontent.com/martaw22/be9c0fb2823026d98fabe29e0f962e12/raw/8e8d1bb3a1d65f0e97ca730a545d7367dfa2996c/YF20_blue.csv");
 }, false);
-
-</script>
-
+</script> <!-- END MODULE SCRIPT #3: BLUE BAND RESIDUAL -->
 
 
 
+<!-- MODULE SCRIPT #4: IR BAND RESIDUAL -->
 <script type="module">
+// IMPORT FROM OBSERVABLE
 import {Runtime, Inspector} from "https://cdn.jsdelivr.net/npm/@observablehq/runtime@4/dist/runtime.js";
 
 import notebook from "https://api.observablehq.com/@martaw22/near-ir-band-canvasback-minus-yf20.js?v=3";
@@ -895,72 +884,61 @@ const resid4 = new Runtime().module(notebook, name => {
   }
 });
 
-// LAKE 1
+// LAKE 1: MAP PIN CLICK AND RADIO BUTTON CLICK
 document.getElementById(lakes[0][6]).addEventListener('click', function () { 
 resid4.redefine("data_link1","https://gist.githubusercontent.com/martaw22/f618fefdf4b9c3d27d6015950cd52821/raw/94aefb9f11ff8bbd2635df5c6fa0e09e5c218221/IR_boot.csv");
 }, false);
-
 document.getElementById("BL").addEventListener('click', function () { 
 resid4.redefine("data_link2", "https://gist.githubusercontent.com/martaw22/f618fefdf4b9c3d27d6015950cd52821/raw/94aefb9f11ff8bbd2635df5c6fa0e09e5c218221/IR_boot.csv");
 }, false);
 
-// LAKE 2
+// LAKE 2: MAP PIN CLICK AND RADIO BUTTON CLICK
 document.getElementById(lakes[1][6]).addEventListener('click', function () { 
 resid4.redefine("data_link1","https://gist.githubusercontent.com/martaw22/f6845b70891d4ff42c6ee06775018ef0/raw/d4516b8b741a78726cfe8a61c8341ebec7f12a56/cb_IR.csv");
 }, false);
-
 document.getElementById("CBL").addEventListener('click', function () { 
 resid4.redefine("data_link2","https://gist.githubusercontent.com/martaw22/f6845b70891d4ff42c6ee06775018ef0/raw/d4516b8b741a78726cfe8a61c8341ebec7f12a56/cb_IR.csv");
 }, false);
 
-// LAKE 3
+// LAKE 3: MAP PIN CLICK AND RADIO BUTTON CLICK
 document.getElementById(lakes[2][6]).addEventListener('click', function () { 
 resid4.redefine("data_link1","https://gist.githubusercontent.com/martaw22/ddf9f88527fd17515ef367088bf68c48/raw/30bdd7eb84d8209cab45980c9758bf947933c41c/blue_gp.csv");
 }, false);
-
 document.getElementById("GPL").addEventListener('click', function () { 
 resid4.redefine("data_link2","https://gist.githubusercontent.com/martaw22/ddf9f88527fd17515ef367088bf68c48/raw/30bdd7eb84d8209cab45980c9758bf947933c41c/blue_gp.csv");
 }, false);
 
-// LAKE 4
+// LAKE 4: MAP PIN CLICK AND RADIO BUTTON CLICK
 document.getElementById(lakes[3][6]).addEventListener('click', function () { 
 resid4.redefine("data_link1","https://gist.githubusercontent.com/martaw22/bbe4d2a6817bba8b3d9071e1310d1fad/raw/b69fa3f7bd4063e0af6059bc34091a3a3afe55bc/nm_blue.csv");
 }, false);
-
 document.getElementById("NML").addEventListener('click', function () { 
 resid4.redefine("data_link2","https://gist.githubusercontent.com/martaw22/bbe4d2a6817bba8b3d9071e1310d1fad/raw/b69fa3f7bd4063e0af6059bc34091a3a3afe55bc/nm_blue.csv");
 }, false);
 
-// LAKE 5
+// LAKE 5: MAP PIN CLICK AND RADIO BUTTON CLICK
 document.getElementById(lakes[4][6]).addEventListener('click', function () { 
 resid4.redefine("data_link1","https://gist.githubusercontent.com/martaw22/d2d5dac6d0f1b72afbe9126fa1aa4129/raw/8393884acca0e7ea1037c1f3c6019fd9ba6caa2d/scoter_IR.csv");
 }, false);
-
 document.getElementById("SL").addEventListener('click', function () { 
 resid4.redefine("data_link2","https://gist.githubusercontent.com/martaw22/d2d5dac6d0f1b72afbe9126fa1aa4129/raw/8393884acca0e7ea1037c1f3c6019fd9ba6caa2d/scoter_IR.csv");
 }, false);
 
-// LAKE 6
+// LAKE 6: MAP PIN CLICK AND RADIO BUTTON CLICK
 document.getElementById(lakes[5][6]).addEventListener('click', function () { 
 resid4.redefine("data_link1","https://gist.githubusercontent.com/martaw22/ef192af3ec965141fc77965637eeb4aa/raw/45fd935ffcc7ded62a46ad6d5f0302ad4b6e6ebe/YF17_IR.csv");
 }, false);
-
 document.getElementById("YF17L").addEventListener('click', function () { 
 resid4.redefine("data_link2","https://gist.githubusercontent.com/martaw22/ef192af3ec965141fc77965637eeb4aa/raw/45fd935ffcc7ded62a46ad6d5f0302ad4b6e6ebe/YF17_IR.csv");
 }, false);
 
-// LAKE 7
+// LAKE 7: MAP PIN CLICK AND RADIO BUTTON CLICK
 document.getElementById(lakes[6][6]).addEventListener('click', function () { 
 resid4.redefine("data_link1","https://gist.githubusercontent.com/martaw22/b4aa6f397cb326b73c769de5da19e1bb/raw/5c653cc95bd46adf9aa8ae1d2e1f75936fea27fb/YF20_IR.csv");
 }, false);
-
 document.getElementById("YF20L").addEventListener('click', function () { 
 resid4.redefine("data_link2","https://gist.githubusercontent.com/martaw22/b4aa6f397cb326b73c769de5da19e1bb/raw/5c653cc95bd46adf9aa8ae1d2e1f75936fea27fb/YF20_IR.csv");
 }, false);
-
-</script>
-
-
-    
+</script> <!-- END MODULE SCRIPT #4: IR BAND RESIDUAL -->  
 </body>
 </html> 
