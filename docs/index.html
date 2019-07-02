@@ -875,9 +875,7 @@ resid3.redefine("data_link2","https://gist.githubusercontent.com/martaw22/be9c0f
 <script type="module">
 // IMPORT FROM OBSERVABLE
 import {Runtime, Inspector} from "https://cdn.jsdelivr.net/npm/@observablehq/runtime@4/dist/runtime.js";
-
 import notebook from "https://api.observablehq.com/@martaw22/near-ir-band-canvasback-minus-yf20.js?v=3";
-
 const resid4 = new Runtime().module(notebook, name => {
   if (name === "chart") {
     return new Inspector(document.querySelector("#resid4"));
